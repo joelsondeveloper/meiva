@@ -66,10 +66,12 @@ export function Chat() {
     };
   }, []);
 
-  // Mantém a última mensagem (ou o "Anotando…") à vista.
+  // Mantém a última mensagem (ou o "Anotando…") à vista. Usa o id da última
+  // mensagem, e não o tamanho da lista: com o limite de 10, o tamanho para de mudar.
+  const ultimaId = mensagens.at(-1)?.id;
   useEffect(() => {
     fimRef.current?.scrollIntoView({ block: "end" });
-  }, [mensagens.length, anotando]);
+  }, [ultimaId, anotando]);
 
   function preencherExemplo(frase: string) {
     setTexto(frase);
@@ -166,28 +168,31 @@ export function Chat() {
         {vazio ? (
           <BoasVindas onEscolher={preencherExemplo} />
         ) : (
-          <ol role="log" aria-label="Conversa" className="flex flex-col gap-3">
-            {mensagens.map((m) => (
-              <li key={m.id} className="flex">
-                <BolhaMensagem
-                  mensagem={m}
-                  desfazendo={desfazendo === m.id}
-                  onDesfazer={desfazer}
-                />
-              </li>
-            ))}
-            {anotando && (
-              <li className="flex">
-                <BolhaAnotando />
-              </li>
-            )}
-          </ol>
+          <div role="log" aria-label="Conversa">
+            <ol className="flex flex-col gap-3">
+              {mensagens.map((m) => (
+                <li key={m.id} className="flex">
+                  <BolhaMensagem
+                    mensagem={m}
+                    desfazendo={desfazendo === m.id}
+                    onDesfazer={desfazer}
+                  />
+                </li>
+              ))}
+              {anotando && (
+                <li className="flex">
+                  <BolhaAnotando />
+                </li>
+              )}
+            </ol>
+          </div>
         )}
         <div ref={fimRef} />
       </main>
 
       <form
         onSubmit={enviar}
+        aria-label="Escrever mensagem"
         className="border-t border-borda bg-superficie px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
       >
         <label htmlFor="mensagem" className="sr-only">

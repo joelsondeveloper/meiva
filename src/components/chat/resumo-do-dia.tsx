@@ -46,11 +46,17 @@ export function ResumoDoDia({ dia, erro, onTentarDeNovo }: Props) {
         <span className="flex items-center gap-1 font-medium text-texto-suave">
           <span className="group-open:hidden">Ver detalhes</span>
           <span className="hidden group-open:inline">Fechar</span>
-          <IconeSeta className="size-5 transition-transform group-open:rotate-180" />
+          <IconeSeta className="size-5 group-open:rotate-180 motion-safe:transition-transform" />
         </span>
       </summary>
 
-      <div className="flex max-h-[45dvh] flex-col gap-3 overflow-y-auto pt-2">
+      {/* Rolável e focável: quem usa teclado também consegue rolar a lista. */}
+      <div
+        role="region"
+        aria-label="Totais e lançamentos de hoje"
+        tabIndex={0}
+        className="flex max-h-[45dvh] flex-col gap-3 overflow-y-auto pt-2"
+      >
         <dl className="grid grid-cols-2 gap-2">
           <Total rotulo="Entradas" valor={resumo.entradas} sinal="+" cor="text-entrada" Icone={IconeEntrada} />
           <Total rotulo="Saídas" valor={resumo.saidas} sinal="−" cor="text-saida" Icone={IconeSaida} />
