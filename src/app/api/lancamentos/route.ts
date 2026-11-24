@@ -34,7 +34,7 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json(await resumoDoDia(data.data));
   } catch (e) {
     console.error(e);
-    return erro("Falha ao carregar os lançamentos.", 500);
+    return erro("Não consegui carregar os lançamentos. Tente de novo.", 500);
   }
 }
 
@@ -43,7 +43,7 @@ export async function DELETE(request: Request): Promise<Response> {
   try {
     json = await request.json();
   } catch {
-    return erro("Corpo da requisição não é um JSON válido.", 400);
+    return erro("Pedido inválido. Tente de novo.", 400);
   }
 
   const corpo = DesfazerSchema.safeParse(json);

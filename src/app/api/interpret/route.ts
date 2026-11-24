@@ -45,7 +45,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     json = await request.json();
   } catch {
-    return erro("Corpo da requisição não é um JSON válido.", 400);
+    return erro("Mensagem inválida. Tente de novo.", 400);
   }
 
   const corpo = CorpoSchema.safeParse(json);
@@ -59,9 +59,9 @@ export async function POST(request: Request): Promise<Response> {
     if (e instanceof InterpretadorNaoImplementadoError) return erro(e.message, 501);
     if (e instanceof InterpretadorError) {
       console.error(e);
-      return erro("Não consegui interpretar agora. Tente de novo em instantes.", 502);
+      return erro("Não consegui entender agora. Tente de novo.", 502);
     }
     console.error(e);
-    return erro("Falha ao salvar os lançamentos.", 500);
+    return erro("Não consegui salvar. Tente de novo.", 500);
   }
 }
