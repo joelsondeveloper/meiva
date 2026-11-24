@@ -12,6 +12,10 @@
  *
  * tests/tema.test.ts confere o contraste WCAG AA de cada par usado na tela:
  * texto 4.5:1 e bordas de campo/foco 3:1. Rode `npm test` depois de trocar.
+ *
+ * Única cópia fora daqui: a cor da barra do navegador (meta theme-color, em
+ * src/app/layout.tsx) repete --cor-superficie, porque meta tag não lê CSS.
+ * O mesmo teste avisa se as duas divergirem.
  */
 
 :root {

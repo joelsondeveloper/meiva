@@ -113,6 +113,10 @@ describe("acessibilidade: texto de no mínimo 16px e entrelinha ≥ 1.4", () => 
   });
 });
 
+const LAYOUT = join(RAIZ, "src/app/layout.tsx");
+/** Única exceção: a cor da barra do navegador (meta theme-color) em layout.tsx. */
+const LINHA_COR_BARRA = /^(claro|escuro): "(#[0-9a-fA-F]{6})",?$/;
+
 describe("componentes sem cor fixa", () => {
   const arquivos = arquivosTsx(join(RAIZ, "src"));
 
@@ -120,7 +124,22 @@ describe("componentes sem cor fixa", () => {
     const linhas = readFileSync(caminho, "utf8").split("\n");
     const ofensas = linhas
       .map((linha, i) => ({ linha: i + 1, texto: linha.trim() }))
+      .filter(({ texto }) => !(caminho === LAYOUT && LINHA_COR_BARRA.test(texto)))
       .filter(({ texto }) => PALETA_TAILWIND.test(texto) || COR_LITERAL.test(texto));
     expect(ofensas).toEqual([]);
+  });
+
+  test("theme-color do layout é igual a --cor-superficie dos dois temas", () => {
+    const cores = Object.fromEntries(
+      readFileSync(LAYOUT, "utf8")
+        .split("\n")
+        .map((l) => l.trim().match(LINHA_COR_BARRA))
+        .filter((m) => m !== null)
+        .map((m) => [m[1], m[2].toLowerCase()]),
+    );
+    expect(cores).toEqual({
+      claro: TEMAS.claro.superficie,
+      escuro: TEMAS.escuro.superficie,
+    });
   });
 });
