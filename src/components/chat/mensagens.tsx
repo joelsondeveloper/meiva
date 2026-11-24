@@ -1,10 +1,17 @@
 import type { Mensagem } from "@/lib/chat/conversa";
-import { IconeAlerta, IconeCerto, IconePergunta } from "./icones";
+import { IconeAlerta, IconeCerto, IconeDesfazer, IconePergunta } from "./icones";
 import { LinhaLancamento } from "./valor";
 
 const BOLHA_MEIVA = "mr-auto w-full max-w-[92%] rounded-2xl rounded-bl-md border px-4 py-3";
 
-export function BolhaMensagem({ mensagem }: { mensagem: Mensagem }) {
+type Props = {
+  mensagem: Mensagem;
+  /** true enquanto o "Desfazer" desta mensagem está em andamento. */
+  desfazendo?: boolean;
+  onDesfazer?: (mensagemId: string, lancamentoIds: string[]) => void;
+};
+
+export function BolhaMensagem({ mensagem, desfazendo = false, onDesfazer }: Props) {
   if (mensagem.autor === "usuario") {
     return (
       <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-primaria px-4 py-3 text-sobre-primaria">
@@ -16,6 +23,7 @@ export function BolhaMensagem({ mensagem }: { mensagem: Mensagem }) {
 
   if (mensagem.tipo === "registrado") {
     const n = mensagem.lancamentos.length;
+    const descricoes = mensagem.lancamentos.map((l) => l.descricao).join(", ");
     return (
       <div className={`${BOLHA_MEIVA} border-borda bg-superficie`}>
         <p className="mb-2 flex items-center gap-2 font-semibold">
@@ -28,10 +36,29 @@ export function BolhaMensagem({ mensagem }: { mensagem: Mensagem }) {
         <ul className="flex flex-col gap-3">
           {mensagem.lancamentos.map((l) => (
             <li key={l.id}>
-              <LinhaLancamento lancamento={l} />
+              <LinhaLancamento lancamento={l} riscado={mensagem.desfeito} />
             </li>
           ))}
         </ul>
+        {mensagem.desfeito ? (
+          <p className="mt-3 flex items-center gap-2 font-semibold text-texto-suave">
+            <IconeDesfazer />
+            Desfeito. Não conta mais no caixa.
+          </p>
+        ) : (
+          onDesfazer && (
+            <button
+              type="button"
+              onClick={() => onDesfazer(mensagem.id, mensagem.lancamentos.map((l) => l.id))}
+              disabled={desfazendo}
+              aria-label={`Desfazer: ${descricoes}`}
+              className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-borda-forte bg-superficie px-4 text-lg font-semibold text-texto hover:bg-fundo disabled:cursor-wait disabled:opacity-60"
+            >
+              <IconeDesfazer />
+              {desfazendo ? "Desfazendo…" : "Desfazer"}
+            </button>
+          )
+        )}
       </div>
     );
   }

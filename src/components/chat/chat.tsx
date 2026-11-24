@@ -8,10 +8,11 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { buscarDia, enviarFrase, textoDoErro } from "@/lib/chat/api";
+import { buscarDia, desfazerLancamentos, enviarFrase, textoDoErro } from "@/lib/chat/api";
 import {
   adicionarMensagem as adicionar,
   assinarConversa,
+  atualizarConversa,
   conversaNoServidor,
   lerConversa,
   limparConversa,
@@ -34,6 +35,8 @@ export function Chat() {
   const [anotando, setAnotando] = useState(false);
   const [dia, setDia] = useState<RespostaListagem | null>(null);
   const [erroDia, setErroDia] = useState<string | null>(null);
+  /** Id da mensagem cujo "Desfazer" está em andamento. */
+  const [desfazendo, setDesfazendo] = useState<string | null>(null);
 
   const campoRef = useRef<HTMLTextAreaElement>(null);
   const fimRef = useRef<HTMLDivElement>(null);
@@ -104,6 +107,26 @@ export function Chat() {
     }
   }
 
+  async function desfazer(mensagemId: string, lancamentoIds: string[]) {
+    if (desfazendo) return;
+    setDesfazendo(mensagemId);
+    try {
+      await desfazerLancamentos(lancamentoIds);
+      atualizarConversa((atual) =>
+        atual.map((m) =>
+          m.id === mensagemId && m.autor === "meiva" && m.tipo === "registrado"
+            ? { ...m, desfeito: true }
+            : m,
+        ),
+      );
+      void recarregarDia();
+    } catch (err) {
+      adicionar({ id: novoId(), autor: "meiva", tipo: "erro", texto: textoDoErro(err) });
+    } finally {
+      setDesfazendo(null);
+    }
+  }
+
   function novaConversa() {
     limparConversa();
     setTexto("");
@@ -129,7 +152,7 @@ export function Chat() {
             <button
               type="button"
               onClick={novaConversa}
-              disabled={anotando}
+              disabled={anotando || desfazendo !== null}
               className="min-h-11 rounded-lg border border-borda-forte px-3 font-medium hover:bg-fundo disabled:opacity-60"
             >
               Nova conversa
@@ -146,7 +169,11 @@ export function Chat() {
           <ol role="log" aria-label="Conversa" className="flex flex-col gap-3">
             {mensagens.map((m) => (
               <li key={m.id} className="flex">
-                <BolhaMensagem mensagem={m} />
+                <BolhaMensagem
+                  mensagem={m}
+                  desfazendo={desfazendo === m.id}
+                  onDesfazer={desfazer}
+                />
               </li>
             ))}
             {anotando && (
