@@ -1,9 +1,9 @@
 import { hojeBR } from "@/lib/datas";
 import { interpret } from "@/lib/interpreter/interpret";
 import { ResultadoSchema, type Resultado } from "@/lib/interpreter/schema";
-import { inserirLancamentos, listarPorData } from "./repository";
+import { excluirLancamentos, inserirLancamentos, listarPorData } from "./repository";
 import { calcularSaldo } from "./saldo";
-import type { RespostaInterpret, RespostaListagem } from "./tipos";
+import type { RespostaDesfazer, RespostaInterpret, RespostaListagem } from "./tipos";
 
 /** interpret() ainda é o stub com TODO. */
 export class InterpretadorNaoImplementadoError extends Error {
@@ -69,4 +69,11 @@ export async function registrarTexto(texto: string): Promise<RespostaInterpret> 
   const lancamentos = await inserirLancamentos(resultado.lancamentos);
   const { resumo } = await resumoDoDia();
   return { status: "registrado", lancamentos, resumo };
+}
+
+/** Desfaz um registro: apaga os lançamentos e devolve o resumo de hoje atualizado. */
+export async function desfazerLancamentos(ids: readonly string[]): Promise<RespostaDesfazer> {
+  const removidos = await excluirLancamentos(ids);
+  const { resumo } = await resumoDoDia();
+  return { removidos, resumo };
 }

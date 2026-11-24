@@ -26,4 +26,10 @@ export type RespostaListagem = {
   resumo: Resumo;
 };
 
+export type RespostaDesfazer = {
+  /** Quantos lançamentos foram apagados (0 se já tinham sido desfeitos). */
+  removidos: number;
+  resumo: Resumo;
+};
+
 export type RespostaErro = { error: string };

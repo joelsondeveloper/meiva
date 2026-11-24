@@ -54,3 +54,19 @@ export async function listarPorData(data: string): Promise<LancamentoSalvo[]> {
   }
   return (linhas ?? []) as LancamentoSalvo[];
 }
+
+/** Apaga os lançamentos com esses ids e devolve quantos foram apagados (usado pelo "Desfazer"). */
+export async function excluirLancamentos(ids: readonly string[]): Promise<number> {
+  if (ids.length === 0) return 0;
+
+  const { data, error } = await getSupabaseServerClient()
+    .from(TABELA)
+    .delete()
+    .in("id", ids)
+    .select("id");
+
+  if (error) {
+    throw new RepositoryError(`Falha ao apagar lançamentos: ${error.message}`, { cause: error });
+  }
+  return data?.length ?? 0;
+}
