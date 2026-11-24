@@ -29,8 +29,18 @@ async function lerJson<T>(res: Response): Promise<T> {
   return json as T;
 }
 
-const buscarDia = async () =>
-  lerJson<RespostaListagem>(await fetch("/api/lancamentos", { cache: "no-store" }));
+/** fetch + lerJson; falha de rede vira mensagem em português (o navegador dá "Failed to fetch"). */
+async function chamarApi<T>(url: string, init?: RequestInit): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(url, init);
+  } catch {
+    throw new Error("Sem conexão com o servidor. Verifique a internet e tente de novo.");
+  }
+  return lerJson<T>(res);
+}
+
+const buscarDia = () => chamarApi<RespostaListagem>("/api/lancamentos", { cache: "no-store" });
 
 const mensagemDe = (e: unknown, padrao: string) => (e instanceof Error ? e.message : padrao);
 
@@ -74,13 +84,11 @@ export function Caixa() {
     setEnviando(true);
     setRetorno(null);
     try {
-      const res = await lerJson<RespostaInterpret>(
-        await fetch("/api/interpret", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ texto: frase }),
-        }),
-      );
+      const res = await chamarApi<RespostaInterpret>("/api/interpret", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ texto: frase }),
+      });
       if (res.status === "precisa_confirmar") {
         setRetorno({ tipo: "pergunta", texto: res.pergunta });
       } else {
