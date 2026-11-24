@@ -106,7 +106,7 @@ export function Caixa() {
   return (
     <div className="flex flex-col gap-6">
       <form onSubmit={registrar} className="flex flex-col gap-3">
-        <label htmlFor="texto" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="texto" className="text-sm font-medium text-texto">
           O que aconteceu no caixa?
         </label>
         <textarea
@@ -116,16 +116,16 @@ export function Caixa() {
           maxLength={MAX_CARACTERES}
           rows={3}
           placeholder="Ex.: vendi 3 blusas a 50 no pix e paguei 120 de fornecedor"
-          className="w-full resize-none rounded-xl border border-zinc-300 bg-white p-3 text-base text-zinc-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+          className="w-full resize-none rounded-xl border border-borda-forte bg-superficie p-3 text-base text-texto outline-none focus:border-primaria focus:ring-2 focus:ring-primaria/20"
         />
         <div className="flex items-center justify-between gap-3">
-          <span className="text-xs text-zinc-500">
+          <span className="text-xs text-texto-suave">
             {texto.length}/{MAX_CARACTERES}
           </span>
           <button
             type="submit"
             disabled={enviando || !texto.trim()}
-            className="h-12 flex-1 rounded-xl bg-emerald-600 px-6 text-base font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+            className="h-12 flex-1 rounded-xl bg-primaria px-6 text-base font-semibold text-sobre-primaria transition-colors hover:bg-primaria-forte disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           >
             {enviando ? "Registrando…" : "Registrar"}
           </button>
@@ -139,7 +139,7 @@ export function Caixa() {
           Hoje
         </h2>
         {erroLista && (
-          <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
+          <p role="alert" className="rounded-xl bg-erro-suave p-3 text-sm text-erro">
             {erroLista}
           </p>
         )}
@@ -149,7 +149,7 @@ export function Caixa() {
             <ListaLancamentos lancamentos={dia.lancamentos} />
           </>
         ) : (
-          !erroLista && <p className="text-sm text-zinc-500">Carregando…</p>
+          !erroLista && <p className="text-sm text-texto-suave">Carregando…</p>
         )}
       </section>
     </div>
@@ -159,21 +159,21 @@ export function Caixa() {
 function MensagemRetorno({ retorno }: { retorno: Retorno }) {
   if (retorno.tipo === "erro") {
     return (
-      <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
+      <p role="alert" className="rounded-xl bg-erro-suave p-3 text-sm text-erro">
         {retorno.texto}
       </p>
     );
   }
   if (retorno.tipo === "pergunta") {
     return (
-      <p role="status" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+      <p role="status" className="rounded-xl bg-aviso-suave p-3 text-sm text-aviso">
         <strong className="font-semibold">Preciso confirmar: </strong>
         {retorno.texto}
       </p>
     );
   }
   return (
-    <div role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
+    <div role="status" className="rounded-xl bg-entrada-suave p-3 text-sm text-entrada">
       <p className="font-semibold">
         {retorno.lancamentos.length === 1 ? "Registrado:" : `${retorno.lancamentos.length} lançamentos registrados:`}
       </p>
@@ -190,16 +190,16 @@ function MensagemRetorno({ retorno }: { retorno: Retorno }) {
 
 function PainelResumo({ resumo }: { resumo: Resumo }) {
   const itens = [
-    { rotulo: "Saldo", valor: resumo.saldo, cor: resumo.saldo < 0 ? "text-red-700 dark:text-red-400" : "text-zinc-900 dark:text-zinc-50" },
-    { rotulo: "Entradas", valor: resumo.entradas, cor: "text-emerald-700 dark:text-emerald-400" },
-    { rotulo: "Saídas", valor: resumo.saidas, cor: "text-red-700 dark:text-red-400" },
-    { rotulo: "A receber", valor: resumo.aReceber, cor: "text-amber-700 dark:text-amber-400" },
+    { rotulo: "Saldo", valor: resumo.saldo, cor: resumo.saldo < 0 ? "text-saida" : "text-texto" },
+    { rotulo: "Entradas", valor: resumo.entradas, cor: "text-entrada" },
+    { rotulo: "Saídas", valor: resumo.saidas, cor: "text-saida" },
+    { rotulo: "A receber", valor: resumo.aReceber, cor: "text-aviso" },
   ];
   return (
     <dl className="grid grid-cols-2 gap-3">
       {itens.map((i) => (
-        <div key={i.rotulo} className="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
-          <dt className="text-xs text-zinc-500">{i.rotulo}</dt>
+        <div key={i.rotulo} className="rounded-xl border border-borda bg-superficie p-3">
+          <dt className="text-xs text-texto-suave">{i.rotulo}</dt>
           <dd className={`text-lg font-semibold tabular-nums ${i.cor}`}>{formatarCentavos(i.valor)}</dd>
         </div>
       ))}
@@ -209,25 +209,25 @@ function PainelResumo({ resumo }: { resumo: Resumo }) {
 
 function ListaLancamentos({ lancamentos }: { lancamentos: LancamentoSalvo[] }) {
   if (lancamentos.length === 0) {
-    return <p className="text-sm text-zinc-500">Nenhum lançamento hoje.</p>;
+    return <p className="text-sm text-texto-suave">Nenhum lançamento hoje.</p>;
   }
   return (
-    <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+    <ul className="divide-y divide-borda rounded-xl border border-borda bg-superficie">
       {lancamentos.map((l) => (
         <li key={l.id} className="flex items-start justify-between gap-3 p-3">
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{l.descricao}</p>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-texto-suave">
               {rotuloTipo(l.tipo)} · {rotuloForma(l.forma_pagamento)}
             </p>
           </div>
           <span
             className={`shrink-0 text-sm font-semibold tabular-nums ${
               l.forma_pagamento === "fiado"
-                ? "text-amber-700 dark:text-amber-400"
+                ? "text-aviso"
                 : l.tipo === "entrada"
-                  ? "text-emerald-700 dark:text-emerald-400"
-                  : "text-red-700 dark:text-red-400"
+                  ? "text-entrada"
+                  : "text-saida"
             }`}
           >
             {l.tipo === "saida" ? "−" : "+"}

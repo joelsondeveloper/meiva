@@ -1,26 +1,105 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Design tokens da MEIva: TODA cor do app sai daqui.
+ *
+ * Para trocar a paleta da marca, mude só os valores --cor-* abaixo (tema
+ * claro e tema escuro). Os componentes usam apenas as classes semânticas
+ * geradas pelo @theme (bg-fundo, bg-superficie, text-texto, text-texto-suave,
+ * border-borda, bg-primaria, text-entrada, text-saida, text-aviso, text-erro…)
+ * e nunca cores fixas. A paleta padrão do Tailwind está desligada, então uma
+ * classe como bg-zinc-50 nem gera CSS.
+ *
+ * tests/tema.test.ts confere o contraste WCAG AA de cada par usado na tela:
+ * texto 4.5:1 e bordas de campo/foco 3:1. Rode `npm test` depois de trocar.
+ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  color-scheme: light;
+
+  /* Base */
+  --cor-fundo: #fafafa;
+  --cor-superficie: #ffffff;
+  --cor-texto: #18181b;
+  --cor-texto-suave: #52525b;
+  /* Divisórias e contorno de cartões (decorativo) */
+  --cor-borda: #e4e4e7;
+  /* Contorno de campos de formulário (precisa de 3:1) */
+  --cor-borda-forte: #71717a;
+
+  /* Ação principal (botões) */
+  --cor-primaria: #047857;
+  --cor-primaria-forte: #065f46;
+  --cor-sobre-primaria: #ffffff;
+  --cor-foco: #047857;
+
+  /* Semânticas: a cor base serve para texto/ícone; a -suave, para fundo de aviso */
+  --cor-entrada: #047857;
+  --cor-entrada-suave: #ecfdf5;
+  --cor-saida: #b91c1c;
+  --cor-saida-suave: #fef2f2;
+  --cor-aviso: #b45309;
+  --cor-aviso-suave: #fffbeb;
+  --cor-erro: #b91c1c;
+  --cor-erro-suave: #fef2f2;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+
+    --cor-fundo: #000000;
+    --cor-superficie: #18181b;
+    --cor-texto: #f4f4f5;
+    --cor-texto-suave: #a1a1aa;
+    --cor-borda: #27272a;
+    --cor-borda-forte: #71717a;
+
+    --cor-primaria: #047857;
+    --cor-primaria-forte: #065f46;
+    --cor-sobre-primaria: #ffffff;
+    --cor-foco: #34d399;
+
+    --cor-entrada: #34d399;
+    --cor-entrada-suave: #022c22;
+    --cor-saida: #f87171;
+    --cor-saida-suave: #450a0a;
+    --cor-aviso: #fbbf24;
+    --cor-aviso-suave: #451a03;
+    --cor-erro: #f87171;
+    --cor-erro-suave: #450a0a;
   }
 }
 
+@theme inline {
+  /* Desliga a paleta padrão do Tailwind: só existem as cores abaixo. */
+  --color-*: initial;
+
+  --color-fundo: var(--cor-fundo);
+  --color-superficie: var(--cor-superficie);
+  --color-texto: var(--cor-texto);
+  --color-texto-suave: var(--cor-texto-suave);
+  --color-borda: var(--cor-borda);
+  --color-borda-forte: var(--cor-borda-forte);
+  --color-primaria: var(--cor-primaria);
+  --color-primaria-forte: var(--cor-primaria-forte);
+  --color-sobre-primaria: var(--cor-sobre-primaria);
+  --color-foco: var(--cor-foco);
+  --color-entrada: var(--cor-entrada);
+  --color-entrada-suave: var(--cor-entrada-suave);
+  --color-saida: var(--cor-saida);
+  --color-saida-suave: var(--cor-saida-suave);
+  --color-aviso: var(--cor-aviso);
+  --color-aviso-suave: var(--cor-aviso-suave);
+  --color-erro: var(--cor-erro);
+  --color-erro-suave: var(--cor-erro-suave);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
   font-family: Arial, Helvetica, sans-serif;
 }
