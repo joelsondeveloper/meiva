@@ -1,8 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import { buscarDia, enviarFrase, textoDoErro } from "@/lib/chat/api";
-import { novoId, type Mensagem } from "@/lib/chat/conversa";
+import {
+  adicionarMensagem as adicionar,
+  assinarConversa,
+  conversaNoServidor,
+  lerConversa,
+  limparConversa,
+  novoId,
+} from "@/lib/chat/conversa";
 import type { RespostaListagem } from "@/lib/lancamentos/tipos";
 import { BoasVindas } from "./boas-vindas";
 import { IconeEnviar } from "./icones";
@@ -14,7 +28,8 @@ const MAX_CARACTERES = 500;
 const MOSTRAR_CONTADOR_A_PARTIR_DE = 400;
 
 export function Chat() {
-  const [mensagens, setMensagens] = useState<Mensagem[]>([]);
+  // Conversa vem do sessionStorage (vazia no servidor e na hidratação).
+  const mensagens = useSyncExternalStore(assinarConversa, lerConversa, conversaNoServidor);
   const [texto, setTexto] = useState("");
   const [anotando, setAnotando] = useState(false);
   const [dia, setDia] = useState<RespostaListagem | null>(null);
@@ -22,8 +37,6 @@ export function Chat() {
 
   const campoRef = useRef<HTMLTextAreaElement>(null);
   const fimRef = useRef<HTMLDivElement>(null);
-
-  const adicionar = (m: Mensagem) => setMensagens((atual) => [...atual, m]);
 
   async function recarregarDia() {
     try {
@@ -91,6 +104,12 @@ export function Chat() {
     }
   }
 
+  function novaConversa() {
+    limparConversa();
+    setTexto("");
+    campoRef.current?.focus();
+  }
+
   function aoTeclar(e: KeyboardEvent<HTMLTextAreaElement>) {
     // Enter envia; Shift+Enter quebra a linha. Não envia no meio de uma composição (IME).
     if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -106,6 +125,16 @@ export function Chat() {
       <header className="border-b border-borda bg-superficie px-4 pt-[max(0.5rem,env(safe-area-inset-top))]">
         <div className="flex min-h-12 items-center justify-between gap-3">
           <h1 className="text-2xl font-bold tracking-tight">MEIva</h1>
+          {mensagens.length > 0 && (
+            <button
+              type="button"
+              onClick={novaConversa}
+              disabled={anotando}
+              className="min-h-11 rounded-lg border border-borda-forte px-3 font-medium hover:bg-fundo disabled:opacity-60"
+            >
+              Nova conversa
+            </button>
+          )}
         </div>
         <ResumoDoDia dia={dia} erro={erroDia} onTentarDeNovo={() => void recarregarDia()} />
       </header>
