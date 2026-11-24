@@ -91,6 +91,28 @@ const PALETA_TAILWIND =
   /\b(?:bg|text|border|ring|outline|divide|fill|stroke|from|via|to|shadow|accent|caret|decoration|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black)\b/;
 const COR_LITERAL = /#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla|oklch)\(/;
 
+/** Texto abaixo de 16px ou entrelinha abaixo de 1.4. */
+const TEXTO_PEQUENO =
+  /\btext-(?:xs|sm)\b|\btext-\[(?:\d|1[0-5])(?:\.\d+)?px\]|\bleading-(?:none|tight|snug|[1-5])\b/;
+
+describe("acessibilidade: texto de no mínimo 16px e entrelinha ≥ 1.4", () => {
+  const arquivos = arquivosTsx(join(RAIZ, "src"));
+
+  test.each(arquivos.map((a) => [a.slice(RAIZ.length + 1), a]))("%s", (_nome, caminho) => {
+    const ofensas = readFileSync(caminho, "utf8")
+      .split("\n")
+      .map((linha, i) => ({ linha: i + 1, texto: linha.trim() }))
+      .filter(({ texto }) => TEXTO_PEQUENO.test(texto));
+    expect(ofensas).toEqual([]);
+  });
+
+  test("o tema desliga text-xs/text-sm e sobe a entrelinha dos títulos", () => {
+    expect(css).toMatch(/--text-xs:\s*initial;/);
+    expect(css).toMatch(/--text-sm:\s*initial;/);
+    expect(css).toMatch(/--text-2xl--line-height:\s*1\.4;/);
+  });
+});
+
 describe("componentes sem cor fixa", () => {
   const arquivos = arquivosTsx(join(RAIZ, "src"));
 

@@ -98,8 +98,38 @@
   --font-mono: var(--font-geist-mono);
 }
 
-body {
-  background: var(--cor-fundo);
-  color: var(--cor-texto);
-  font-family: Arial, Helvetica, sans-serif;
+/*
+ * Acessibilidade (público mais velho, só no celular):
+ * - texto de no mínimo 16px: text-xs e text-sm não existem neste projeto;
+ * - line-height de no mínimo 1.4, inclusive nos títulos grandes.
+ * Os componentes ainda garantem áreas de toque de 44x44px (min-h-11 / min-h-12).
+ */
+@theme {
+  --text-xs: initial;
+  --text-sm: initial;
+  --text-2xl--line-height: 1.4;
+  --text-3xl--line-height: 1.4;
+  --text-4xl--line-height: 1.4;
+}
+
+@layer base {
+  html {
+    /* Não deixa o iOS/Android mexer no tamanho da fonte sozinho ao girar a tela. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Foco sempre visível ao navegar por teclado (e em campos de texto). */
+  :focus-visible {
+    outline: 3px solid var(--cor-foco);
+    outline-offset: 2px;
+  }
 }
