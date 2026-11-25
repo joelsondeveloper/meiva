@@ -19,7 +19,7 @@ export default function ErroGlobal({ retry }: { error: unknown; retry: () => voi
           <button
             type="button"
             onClick={() => retry()}
-            className="mt-2 min-h-12 rounded-xl bg-primaria px-6 text-lg font-semibold text-sobre-primaria hover:bg-primaria-forte"
+            className="mt-2 min-h-14 rounded-2xl bg-acento px-6 text-lg font-bold text-sobre-acento hover:bg-acento-forte"
           >
             Tentar de novo
           </button>

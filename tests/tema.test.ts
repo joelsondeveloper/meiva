@@ -38,21 +38,32 @@ function contraste(a: string, b: string): number {
 
 const TOKENS = [
   "fundo", "superficie", "texto", "texto-suave", "borda", "borda-forte",
-  "primaria", "primaria-forte", "sobre-primaria", "foco",
+  "primaria", "primaria-forte", "primaria-suave", "sobre-primaria",
+  "acento", "acento-forte", "sobre-acento", "foco",
   "entrada", "entrada-suave", "saida", "saida-suave",
-  "aviso", "aviso-suave", "erro", "erro-suave",
+  "fiado", "fiado-suave", "erro", "erro-suave",
 ];
 
-/** [frente, fundo] de texto que aparece na tela: precisa de 4.5:1. */
+/** Texto principal: 7:1 (AAA), que o público mais velho agradece. */
+const PARES_TEXTO_PRINCIPAL: [string, string][] = [
+  ["texto", "fundo"],
+  ["texto", "superficie"],
+  ...["primaria", "entrada", "saida", "fiado", "erro"].map((s): [string, string] => ["texto", `${s}-suave`]),
+];
+
+/** [frente, fundo] dos demais textos que aparecem na tela: 4.5:1. */
 const PARES_TEXTO: [string, string][] = [
   ...["fundo", "superficie"].flatMap((f): [string, string][] =>
-    ["texto", "texto-suave", "entrada", "saida", "aviso", "erro"].map((t) => [t, f]),
+    ["texto-suave", "primaria", "entrada", "saida", "fiado", "erro"].map((t) => [t, f]),
   ),
   ["sobre-primaria", "primaria"],
   ["sobre-primaria", "primaria-forte"],
-  ...["entrada", "saida", "aviso", "erro"].flatMap((s): [string, string][] => [
+  ["sobre-acento", "acento"],
+  ["sobre-acento", "acento-forte"],
+  ["primaria", "primaria-suave"],
+  ["texto-suave", "primaria-suave"],
+  ...["entrada", "saida", "fiado", "erro"].flatMap((s): [string, string][] => [
     [s, `${s}-suave`],
-    ["texto", `${s}-suave`],
     ["texto-suave", `${s}-suave`],
   ]),
 ];
@@ -63,11 +74,16 @@ const PARES_NAO_TEXTO: [string, string][] = [
   ["borda-forte", "superficie"],
   ["foco", "fundo"],
   ["foco", "superficie"],
+  ["foco", "primaria-suave"],
 ];
 
 describe.each(Object.entries(TEMAS))("tokens do tema %s", (_tema, cores) => {
   test("todos os tokens estão definidos", () => {
     expect(Object.keys(cores).sort()).toEqual([...TOKENS].sort());
+  });
+
+  test.each(PARES_TEXTO_PRINCIPAL)("texto principal %s sobre %s tem contraste ≥ 7:1", (frente, fundo) => {
+    expect(contraste(cores[frente], cores[fundo])).toBeGreaterThanOrEqual(7);
   });
 
   test.each(PARES_TEXTO)("texto %s sobre %s tem contraste ≥ 4.5:1", (frente, fundo) => {
@@ -106,10 +122,12 @@ describe("acessibilidade: texto de no mínimo 16px e entrelinha ≥ 1.4", () => 
     expect(ofensas).toEqual([]);
   });
 
-  test("o tema desliga text-xs/text-sm e sobe a entrelinha dos títulos", () => {
+  test("o tema desliga text-xs/text-sm e usa corpo de 18px com entrelinha ≥ 1.5", () => {
     expect(css).toMatch(/--text-xs:\s*initial;/);
     expect(css).toMatch(/--text-sm:\s*initial;/);
-    expect(css).toMatch(/--text-2xl--line-height:\s*1\.4;/);
+    expect(css).toMatch(/--text-base:\s*1\.125rem;/);
+    const entrelinha = Number(css.match(/--text-base--line-height:\s*([\d.]+);/)?.[1]);
+    expect(entrelinha).toBeGreaterThanOrEqual(1.5);
   });
 });
 
