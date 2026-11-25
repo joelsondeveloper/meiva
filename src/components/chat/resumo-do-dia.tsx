@@ -9,9 +9,12 @@ type Props = {
   onTentarDeNovo: () => void;
 };
 
+const corDoSaldo = (v: number) => (v < 0 ? "text-saida" : "text-texto");
+
 /**
- * Saldo de hoje sempre visível no topo; ao tocar, abre os totais e a lista
- * de lançamentos do dia. <details> já é acessível por teclado e leitor de tela.
+ * Saldo de hoje sempre visível no topo; ao tocar, abre o saldo do dia, o
+ * saldo acumulado, quem está devendo (a receber por pessoa) e a lista de
+ * lançamentos do dia. <details> já é acessível por teclado e leitor de tela.
  */
 export function ResumoDoDia({ dia, erro, onTentarDeNovo }: Props) {
   if (erro && !dia) {
@@ -34,13 +37,15 @@ export function ResumoDoDia({ dia, erro, onTentarDeNovo }: Props) {
   }
 
   const { resumo, lancamentos } = dia;
+  const saldoDia = resumo.dia.saldo;
+  const { aReceber } = resumo;
   return (
     <details className="group pb-2">
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-lg [&::-webkit-details-marker]:hidden">
         <span>
           Saldo de hoje:{" "}
-          <strong className={`tabular-nums ${resumo.saldo < 0 ? "text-saida" : ""}`}>
-            {formatarCentavos(resumo.saldo)}
+          <strong className={`tabular-nums ${saldoDia < 0 ? "text-saida" : ""}`}>
+            {formatarCentavos(saldoDia)}
           </strong>
         </span>
         <span className="flex items-center gap-1 font-medium text-texto-suave">
@@ -53,21 +58,45 @@ export function ResumoDoDia({ dia, erro, onTentarDeNovo }: Props) {
       {/* Rolável e focável: quem usa teclado também consegue rolar a lista. */}
       <div
         role="region"
-        aria-label="Totais e lançamentos de hoje"
+        aria-label="Resumo do caixa"
         tabIndex={0}
-        className="flex max-h-[45dvh] flex-col gap-3 overflow-y-auto pt-2"
+        className="flex max-h-[55dvh] flex-col gap-3 overflow-y-auto pt-2"
       >
         <dl className="grid grid-cols-2 gap-2">
-          <Total rotulo="Entradas" valor={resumo.entradas} sinal="+" cor="text-entrada" Icone={IconeEntrada} />
-          <Total rotulo="Saídas" valor={resumo.saidas} sinal="−" cor="text-saida" Icone={IconeSaida} />
-          <Total rotulo="A receber" valor={resumo.aReceber} sinal="+" cor="text-aviso" Icone={IconeFiado} />
+          <Total rotulo="Entradas hoje" valor={resumo.dia.entradas} sinal="+" cor="text-entrada" Icone={IconeEntrada} />
+          <Total rotulo="Saídas hoje" valor={resumo.dia.saidas} sinal="−" cor="text-saida" Icone={IconeSaida} />
+          <Total rotulo="Saldo do dia" valor={saldoDia} cor={corDoSaldo(saldoDia)} Icone={IconeSaldo} />
           <Total
-            rotulo="Saldo"
-            valor={resumo.saldo}
-            cor={resumo.saldo < 0 ? "text-saida" : "text-texto"}
+            rotulo="Saldo acumulado"
+            valor={resumo.saldoAcumulado}
+            cor={corDoSaldo(resumo.saldoAcumulado)}
             Icone={IconeSaldo}
           />
         </dl>
+
+        <section aria-labelledby="a-receber-titulo" className="rounded-xl border border-borda bg-fundo p-3">
+          <h2 id="a-receber-titulo" className="flex items-center justify-between gap-3">
+            <span className="flex items-center gap-1 text-texto-suave">
+              <span className="text-aviso">
+                <IconeFiado className="size-5" />
+              </span>
+              A receber (fiado)
+            </span>
+            <span className="text-xl font-bold tabular-nums text-aviso">{formatarCentavos(aReceber.total)}</span>
+          </h2>
+          {aReceber.porPessoa.length === 0 ? (
+            <p className="mt-1 text-texto-suave">Ninguém está devendo.</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-borda" aria-label="A receber por pessoa">
+              {aReceber.porPessoa.map((d) => (
+                <li key={d.pessoa} className="flex min-h-11 items-center justify-between gap-3 py-2">
+                  <span className="min-w-0 break-words">{d.pessoa}</span>
+                  <span className="shrink-0 font-semibold tabular-nums">{formatarCentavos(d.valor_centavos)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
         {lancamentos.length === 0 ? (
           <p className="text-texto-suave">Nenhum lançamento hoje.</p>
