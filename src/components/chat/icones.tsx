@@ -50,6 +50,26 @@ export const IconeFiado = (p: P) => (
   </Icone>
 );
 
+/** Caixa inicial (aporte do dono): cofre com um "+". */
+export const IconeAporte = (p: P) => (
+  <Icone {...p}>
+    <rect x="3" y="7" width="18" height="13" rx="2" />
+    <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M12 10.5v6" />
+    <path d="M9 13.5h6" />
+  </Icone>
+);
+
+/** Retirada pessoal: pessoa com uma seta saindo. */
+export const IconeRetirada = (p: P) => (
+  <Icone {...p}>
+    <circle cx="9" cy="7" r="4" />
+    <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+    <path d="M17 11h5" />
+    <path d="m20 8 3 3-3 3" />
+  </Icone>
+);
+
 export const IconeSaldo = (p: P) => (
   <Icone {...p}>
     <rect x="3" y="6" width="18" height="13" rx="2" />
@@ -76,14 +96,6 @@ export const IconeCerto = (p: P) => (
   <Icone {...p}>
     <circle cx="12" cy="12" r="9" />
     <path d="m8 12 3 3 5-6" />
-  </Icone>
-);
-
-export const IconePergunta = (p: P) => (
-  <Icone {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.2" />
-    <path d="M12 17h.01" />
   </Icone>
 );
 
