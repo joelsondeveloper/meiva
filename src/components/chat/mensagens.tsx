@@ -1,17 +1,18 @@
 import type { Mensagem } from "@/lib/chat/conversa";
-import { IconeAlerta, IconeCerto, IconeDesfazer, IconePergunta } from "./icones";
+import type { LancamentoSalvo } from "@/lib/lancamentos/tipos";
+import { IconeAlerta, IconeCerto, IconeDesfazer } from "./icones";
 import { LinhaLancamento } from "./valor";
 
 const BOLHA_MEIVA = "mr-auto w-full max-w-[92%] rounded-2xl rounded-bl-md border px-4 py-3";
 
 type Props = {
   mensagem: Mensagem;
-  /** true enquanto o "Desfazer" desta mensagem está em andamento. */
-  desfazendo?: boolean;
-  onDesfazer?: (mensagemId: string, lancamentoIds: string[]) => void;
+  /** Id do lançamento cujo "Desfazer" está em andamento (bloqueia os outros botões). */
+  desfazendo?: string | null;
+  onDesfazer?: (mensagemId: string, lancamento: LancamentoSalvo) => void;
 };
 
-export function BolhaMensagem({ mensagem, desfazendo = false, onDesfazer }: Props) {
+export function BolhaMensagem({ mensagem, desfazendo = null, onDesfazer }: Props) {
   if (mensagem.autor === "usuario") {
     return (
       <div className="ml-auto max-w-[85%] rounded-2xl rounded-br-md bg-primaria px-4 py-3 text-sobre-primaria">
@@ -21,58 +22,67 @@ export function BolhaMensagem({ mensagem, desfazendo = false, onDesfazer }: Prop
     );
   }
 
-  if (mensagem.tipo === "registrado") {
-    const n = mensagem.lancamentos.length;
-    const descricoes = mensagem.lancamentos.map((l) => l.descricao).join(", ");
+  if (mensagem.tipo === "resposta") {
+    const { lancamentos, desfeitos } = mensagem;
     return (
       <div className={`${BOLHA_MEIVA} border-borda bg-superficie`}>
-        <p className="mb-2 flex items-center gap-2 font-semibold">
-          <span className="text-entrada">
-            <IconeCerto />
-          </span>
+        <p className="whitespace-pre-wrap break-words">
           <span className="sr-only">MEIva: </span>
-          {n === 1 ? "Anotei:" : `Anotei ${n} lançamentos:`}
+          {mensagem.texto}
         </p>
-        <ul className="flex flex-col gap-3">
-          {mensagem.lancamentos.map((l) => (
-            <li key={l.id}>
-              <LinhaLancamento lancamento={l} riscado={mensagem.desfeito} />
-            </li>
-          ))}
-        </ul>
-        {mensagem.desfeito ? (
-          <p className="mt-3 flex items-center gap-2 font-semibold text-texto-suave">
-            <IconeDesfazer />
-            Desfeito. Não conta mais no caixa.
-          </p>
-        ) : (
-          onDesfazer && (
-            <button
-              type="button"
-              onClick={() => onDesfazer(mensagem.id, mensagem.lancamentos.map((l) => l.id))}
-              disabled={desfazendo}
-              aria-label={`Desfazer: ${descricoes}`}
-              className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-borda-forte bg-superficie px-4 text-lg font-semibold text-texto hover:bg-fundo disabled:cursor-wait disabled:opacity-60"
-            >
-              <IconeDesfazer />
-              {desfazendo ? "Desfazendo…" : "Desfazer"}
-            </button>
-          )
+        {lancamentos.length > 0 && (
+          <div className="mt-3 border-t border-borda pt-3">
+            <p className="mb-2 flex items-center gap-2 font-semibold">
+              <span className="text-entrada">
+                <IconeCerto />
+              </span>
+              {lancamentos.length === 1 ? "Anotei:" : `Anotei ${lancamentos.length} lançamentos:`}
+            </p>
+            <ul className="flex flex-col gap-4">
+              {lancamentos.map((l) => {
+                const desfeito = desfeitos.includes(l.id);
+                return (
+                  <li key={l.id} className="flex flex-col gap-2">
+                    <LinhaLancamento lancamento={l} riscado={desfeito} />
+                    {desfeito ? (
+                      <p className="flex items-center gap-2 font-semibold text-texto-suave">
+                        <IconeDesfazer />
+                        Desfeito. Não conta mais no caixa.
+                      </p>
+                    ) : (
+                      onDesfazer && (
+                        <button
+                          type="button"
+                          onClick={() => onDesfazer(mensagem.id, l)}
+                          disabled={desfazendo !== null}
+                          aria-label={`Desfazer: ${l.descricao}`}
+                          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-borda-forte bg-superficie px-4 text-lg font-semibold text-texto hover:bg-fundo disabled:cursor-wait disabled:opacity-60"
+                        >
+                          <IconeDesfazer />
+                          {desfazendo === l.id ? "Desfazendo…" : "Desfazer"}
+                        </button>
+                      )
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         )}
       </div>
     );
   }
 
-  if (mensagem.tipo === "pergunta") {
+  if (mensagem.tipo === "desfeito") {
     return (
-      <div className={`${BOLHA_MEIVA} border-aviso bg-aviso-suave`}>
-        <p className="flex items-center gap-2 font-semibold text-aviso">
-          <IconePergunta />
+      <div className={`${BOLHA_MEIVA} border-borda bg-fundo`}>
+        <p className="flex items-start gap-2 text-texto-suave">
+          <IconeDesfazer />
           <span>
-            <span className="sr-only">MEIva: </span>Preciso confirmar
+            <span className="sr-only">MEIva: </span>
+            {mensagem.texto}
           </span>
         </p>
-        <p className="mt-1 whitespace-pre-wrap break-words">{mensagem.texto}</p>
       </div>
     );
   }
@@ -102,7 +112,7 @@ export function BolhaAnotando() {
           <span className="size-2 rounded-full bg-texto-suave motion-safe:animate-pulse [animation-delay:200ms]" />
           <span className="size-2 rounded-full bg-texto-suave motion-safe:animate-pulse [animation-delay:400ms]" />
         </span>
-        Anotando…
+        Pensando…
       </p>
     </div>
   );

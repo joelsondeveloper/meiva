@@ -8,17 +8,21 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { buscarDia, desfazerLancamentos, enviarFrase, textoDoErro } from "@/lib/chat/api";
+import { buscarDia, desfazerLancamento, enviarMensagens, textoDoErro } from "@/lib/chat/api";
 import {
   adicionarMensagem as adicionar,
   assinarConversa,
   atualizarConversa,
   conversaNoServidor,
+  historicoParaApi,
   lerConversa,
   limparConversa,
+  marcarDesfeito,
   novoId,
 } from "@/lib/chat/conversa";
-import type { RespostaListagem } from "@/lib/lancamentos/tipos";
+import { formatarCentavos } from "@/lib/formatacao";
+import type { ResumoCaixa } from "@/lib/lancamentos/saldo";
+import type { LancamentoSalvo, RespostaListagem } from "@/lib/lancamentos/tipos";
 import { BoasVindas } from "./boas-vindas";
 import { IconeEnviar } from "./icones";
 import { BolhaAnotando, BolhaMensagem } from "./mensagens";
@@ -35,11 +39,16 @@ export function Chat() {
   const [anotando, setAnotando] = useState(false);
   const [dia, setDia] = useState<RespostaListagem | null>(null);
   const [erroDia, setErroDia] = useState<string | null>(null);
-  /** Id da mensagem cujo "Desfazer" está em andamento. */
+  /** Id do lançamento cujo "Desfazer" está em andamento. */
   const [desfazendo, setDesfazendo] = useState<string | null>(null);
 
   const campoRef = useRef<HTMLTextAreaElement>(null);
   const fimRef = useRef<HTMLDivElement>(null);
+
+  /** O resumo chega junto com cada resposta; a lista do dia vem depois, no GET. */
+  function atualizarResumo(resumo: ResumoCaixa) {
+    setDia((atual) => (atual ? { ...atual, resumo } : atual));
+  }
 
   async function recarregarDia() {
     try {
@@ -83,24 +92,26 @@ export function Chat() {
     const frase = texto.trim();
     if (!frase || anotando) return;
 
-    adicionar({ id: novoId(), autor: "usuario", texto: frase });
+    const doUsuario = { id: novoId(), autor: "usuario", texto: frase } as const;
+    adicionar(doUsuario);
     setTexto("");
     setAnotando(true);
     try {
-      const res = await enviarFrase(frase);
-      if (res.status === "precisa_confirmar") {
-        adicionar({ id: novoId(), autor: "meiva", tipo: "pergunta", texto: res.pergunta });
-      } else {
-        adicionar({
-          id: novoId(),
-          autor: "meiva",
-          tipo: "registrado",
-          lancamentos: res.lancamentos,
-          desfeito: false,
-        });
-        void recarregarDia();
-      }
+      const res = await enviarMensagens(historicoParaApi(lerConversa()));
+      adicionar({
+        id: novoId(),
+        autor: "meiva",
+        tipo: "resposta",
+        texto: res.resposta,
+        lancamentos: res.lancamentosCriados,
+        desfeitos: [],
+      });
+      atualizarResumo(res.resumo);
+      // A IA também pode ter corrigido ou desfeito algo: recarrega a lista do dia.
+      void recarregarDia();
     } catch (err) {
+      // Não foi processada: sai do histórico (senão iria duas vezes ao reenviar).
+      atualizarConversa((atual) => atual.filter((m) => m.id !== doUsuario.id));
       adicionar({ id: novoId(), autor: "meiva", tipo: "erro", texto: textoDoErro(err) });
       // Devolve a frase ao campo para tentar de novo com um toque.
       setTexto((atual) => atual || frase);
@@ -109,18 +120,19 @@ export function Chat() {
     }
   }
 
-  async function desfazer(mensagemId: string, lancamentoIds: string[]) {
+  async function desfazer(mensagemId: string, lancamento: LancamentoSalvo) {
     if (desfazendo) return;
-    setDesfazendo(mensagemId);
+    setDesfazendo(lancamento.id);
     try {
-      await desfazerLancamentos(lancamentoIds);
-      atualizarConversa((atual) =>
-        atual.map((m) =>
-          m.id === mensagemId && m.autor === "meiva" && m.tipo === "registrado"
-            ? { ...m, desfeito: true }
-            : m,
-        ),
-      );
+      const res = await desfazerLancamento(lancamento.id);
+      marcarDesfeito(mensagemId, lancamento.id);
+      adicionar({
+        id: novoId(),
+        autor: "meiva",
+        tipo: "desfeito",
+        texto: `Desfeito: ${lancamento.descricao} (${formatarCentavos(lancamento.valor_centavos)}). Não conta mais no caixa.`,
+      });
+      atualizarResumo(res.resumo);
       void recarregarDia();
     } catch (err) {
       adicionar({ id: novoId(), autor: "meiva", tipo: "erro", texto: textoDoErro(err) });
@@ -172,11 +184,7 @@ export function Chat() {
             <ol className="flex flex-col gap-3">
               {mensagens.map((m) => (
                 <li key={m.id} className="flex">
-                  <BolhaMensagem
-                    mensagem={m}
-                    desfazendo={desfazendo === m.id}
-                    onDesfazer={desfazer}
-                  />
+                  <BolhaMensagem mensagem={m} desfazendo={desfazendo} onDesfazer={desfazer} />
                 </li>
               ))}
               {anotando && (

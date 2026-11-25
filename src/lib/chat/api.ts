@@ -1,4 +1,5 @@
 import type {
+  MensagemChat,
   RespostaDesfazer,
   RespostaInterpret,
   RespostaListagem,
@@ -75,11 +76,15 @@ const json = (method: string, corpo: unknown): RequestInit => ({
   body: JSON.stringify(corpo),
 });
 
-export const enviarFrase = (texto: string) =>
-  chamarApi<RespostaInterpret>("/api/interpret", json("POST", { texto }));
+/** Manda as últimas mensagens da conversa para o agente (a última é do usuário). */
+export const enviarMensagens = (mensagens: readonly MensagemChat[]) =>
+  chamarApi<RespostaInterpret>("/api/interpret", json("POST", { mensagens }));
 
 export const buscarDia = () =>
   chamarApi<RespostaListagem>("/api/lancamentos", { cache: "no-store" });
 
-export const desfazerLancamentos = (ids: readonly string[]) =>
-  chamarApi<RespostaDesfazer>("/api/lancamentos", json("DELETE", { ids }));
+/** Desfaz um lançamento. No servidor é soft delete: a linha fica, marcada como anulada. */
+export const desfazerLancamento = (id: string) =>
+  chamarApi<RespostaDesfazer>(`/api/lancamentos/${encodeURIComponent(id)}/desfazer`, {
+    method: "POST",
+  });

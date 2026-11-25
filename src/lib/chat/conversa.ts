@@ -1,4 +1,4 @@
-import type { LancamentoSalvo } from "@/lib/lancamentos/tipos";
+import type { LancamentoSalvo, MensagemChat } from "@/lib/lancamentos/tipos";
 
 /** Uma mensagem do chat (do usuário ou da MEIva). */
 export type Mensagem =
@@ -6,12 +6,17 @@ export type Mensagem =
   | {
       id: string;
       autor: "meiva";
-      tipo: "registrado";
+      tipo: "resposta";
+      /** Texto escrito pela IA. */
+      texto: string;
+      /** Lançamentos gravados nesta resposta (vazio numa pergunta ou consulta). */
       lancamentos: LancamentoSalvo[];
-      /** true depois que o usuário tocou em "Desfazer". */
-      desfeito: boolean;
+      /** Ids desfeitos pelo botão "Desfazer". */
+      desfeitos: string[];
     }
-  | { id: string; autor: "meiva"; tipo: "pergunta" | "erro"; texto: string };
+  /** Aviso de que o usuário desfez um lançamento pela tela. Vai no histórico para a IA saber. */
+  | { id: string; autor: "meiva"; tipo: "desfeito"; texto: string }
+  | { id: string; autor: "meiva"; tipo: "erro"; texto: string };
 
 let contador = 0;
 
@@ -31,14 +36,17 @@ export function novoId(): string {
  * bloqueado): se falhar, a conversa só fica em memória.
  */
 
+/** Tamanho do histórico guardado e enviado ao agente (o agente também usa só 10). */
 export const MAX_MENSAGENS = 10;
-export const CHAVE_STORAGE = "meiva:conversa:v1";
+/** v2: formato do agente (texto da IA + lançamentos). O v1, do interpretador antigo, é ignorado. */
+export const CHAVE_STORAGE = "meiva:conversa:v2";
 
 const VAZIA: Mensagem[] = [];
 let cache: Mensagem[] | null = null;
 const ouvintes = new Set<() => void>();
 
 const FORMAS = new Set(["pix", "dinheiro", "cartao", "fiado", "outro", null]);
+const NATUREZAS = new Set(["venda", "despesa", "recebimento_fiado", "aporte", "retirada_pessoal"]);
 
 const ehTexto = (v: unknown): v is string => typeof v === "string";
 const ehObjeto = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null;
@@ -48,10 +56,12 @@ function ehLancamento(v: unknown): boolean {
     ehObjeto(v) &&
     ehTexto(v.id) &&
     (v.tipo === "entrada" || v.tipo === "saida") &&
+    NATUREZAS.has(v.natureza as string) &&
     Number.isInteger(v.valor_centavos) &&
     (v.valor_centavos as number) > 0 &&
     ehTexto(v.descricao) &&
     FORMAS.has(v.forma_pagamento as string | null) &&
+    (v.pessoa === null || ehTexto(v.pessoa)) &&
     ehTexto(v.data)
   );
 }
@@ -60,10 +70,12 @@ function ehMensagem(v: unknown): v is Mensagem {
   if (!ehObjeto(v) || !ehTexto(v.id)) return false;
   if (v.autor === "usuario") return ehTexto(v.texto);
   if (v.autor !== "meiva") return false;
-  if (v.tipo === "pergunta" || v.tipo === "erro") return ehTexto(v.texto);
+  if (v.tipo === "desfeito" || v.tipo === "erro") return ehTexto(v.texto);
   return (
-    v.tipo === "registrado" &&
-    typeof v.desfeito === "boolean" &&
+    v.tipo === "resposta" &&
+    ehTexto(v.texto) &&
+    Array.isArray(v.desfeitos) &&
+    v.desfeitos.every(ehTexto) &&
     Array.isArray(v.lancamentos) &&
     v.lancamentos.every(ehLancamento)
   );
@@ -75,9 +87,22 @@ export function validarConversa(bruto: unknown): Mensagem[] {
   return bruto.filter(ehMensagem).slice(-MAX_MENSAGENS);
 }
 
+const ehErro = (m: Mensagem) => m.autor === "meiva" && m.tipo === "erro";
+
+/**
+ * Histórico enviado ao agente: só o texto, sem os erros da tela, nas últimas
+ * MAX_MENSAGENS. A API exige que a última seja do usuário.
+ */
+export function historicoParaApi(mensagens: readonly Mensagem[]): MensagemChat[] {
+  return mensagens
+    .filter((m) => !ehErro(m) && m.texto.trim() !== "")
+    .slice(-MAX_MENSAGENS)
+    .map((m) => ({ role: m.autor === "usuario" ? "user" : "assistant", content: m.texto }));
+}
+
 /** Erros (ex.: "sem internet") não fazem sentido depois de recarregar. */
 const paraGuardar = (mensagens: Mensagem[]) =>
-  mensagens.filter((m) => !(m.autor === "meiva" && m.tipo === "erro")).slice(-MAX_MENSAGENS);
+  mensagens.filter((m) => !ehErro(m)).slice(-MAX_MENSAGENS);
 
 function carregar(): Mensagem[] {
   try {
@@ -120,6 +145,16 @@ export function atualizarConversa(mudar: (atual: Mensagem[]) => Mensagem[]): voi
 
 export const adicionarMensagem = (mensagem: Mensagem) =>
   atualizarConversa((atual) => [...atual, mensagem]);
+
+/** Marca um lançamento como desfeito na mensagem que o criou. */
+export const marcarDesfeito = (mensagemId: string, lancamentoId: string) =>
+  atualizarConversa((atual) =>
+    atual.map((m) =>
+      m.id === mensagemId && m.autor === "meiva" && m.tipo === "resposta" && !m.desfeitos.includes(lancamentoId)
+        ? { ...m, desfeitos: [...m.desfeitos, lancamentoId] }
+        : m,
+    ),
+  );
 
 /** "Nova conversa": limpa a tela e o storage (não apaga lançamentos). */
 export function limparConversa(): void {
