@@ -1,9 +1,15 @@
 import type { Lancamento } from "@/lib/interpreter/schema";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import type { LancamentoSalvo } from "./tipos";
+import type {
+  CamposCorrecao,
+  FiltroLancamentos,
+  LancamentoSalvo,
+  RepositorioLancamentos,
+} from "./tipos";
 
 const TABELA = "lancamentos";
-const COLUNAS = "id, tipo, valor_centavos, descricao, forma_pagamento, data, created_at";
+const COLUNAS =
+  "id, tipo, natureza, valor_centavos, descricao, forma_pagamento, pessoa, data, created_at, anulado_em";
 
 /** Falha de leitura/escrita no banco. */
 export class RepositoryError extends Error {
@@ -13,60 +19,86 @@ export class RepositoryError extends Error {
   }
 }
 
-/** Insere os lançamentos (valores em centavos) e devolve as linhas gravadas. */
-export async function inserirLancamentos(
-  lancamentos: readonly Lancamento[],
-): Promise<LancamentoSalvo[]> {
-  if (lancamentos.length === 0) return [];
+const db = () => getSupabaseServerClient().from(TABELA);
 
-  const linhas = lancamentos.map((l) => ({
-    tipo: l.tipo,
-    valor_centavos: l.valor_centavos,
-    descricao: l.descricao,
-    forma_pagamento: l.forma_pagamento,
-    data: l.data,
-  }));
-
-  const { data, error } = await getSupabaseServerClient()
-    .from(TABELA)
-    .insert(linhas)
-    .select(COLUNAS);
-
-  if (error) {
-    throw new RepositoryError(`Falha ao salvar lançamentos: ${error.message}`, { cause: error });
-  }
-  return (data ?? []) as LancamentoSalvo[];
+function falha(acao: string, error: { message: string }): never {
+  throw new RepositoryError(`Falha ao ${acao}: ${error.message}`, { cause: error });
 }
 
-/** Lista os lançamentos de uma data (YYYY-MM-DD), em ordem de criação. */
-export async function listarPorData(data: string): Promise<LancamentoSalvo[]> {
-  const { data: linhas, error } = await getSupabaseServerClient()
-    .from(TABELA)
-    .select(COLUNAS)
-    .eq("data", data)
-    .order("created_at", { ascending: true });
+/** Repositório real (Supabase). Consultas sempre com `anulado_em is null`. */
+export const repositorioSupabase: RepositorioLancamentos = {
+  async inserir(lancamentos: readonly Lancamento[]) {
+    if (lancamentos.length === 0) return [];
+    const linhas = lancamentos.map((l) => ({
+      tipo: l.tipo,
+      natureza: l.natureza,
+      valor_centavos: l.valor_centavos,
+      descricao: l.descricao,
+      forma_pagamento: l.forma_pagamento,
+      pessoa: l.pessoa,
+      data: l.data,
+    }));
+    const { data, error } = await db().insert(linhas).select(COLUNAS);
+    if (error) falha("salvar lançamentos", error);
+    return (data ?? []) as LancamentoSalvo[];
+  },
 
-  if (error) {
-    throw new RepositoryError(
-      `Falha ao listar lançamentos de ${data}: ${error.message}`,
-      { cause: error },
-    );
-  }
-  return (linhas ?? []) as LancamentoSalvo[];
-}
+  async listar(filtro: FiltroLancamentos = {}) {
+    let q = db().select(COLUNAS).is("anulado_em", null);
+    if (filtro.de) q = q.gte("data", filtro.de);
+    if (filtro.ate) q = q.lte("data", filtro.ate);
+    const { data, error } = await q
+      .order("data", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) falha("listar lançamentos", error);
+    return (data ?? []) as LancamentoSalvo[];
+  },
 
-/** Apaga os lançamentos com esses ids e devolve quantos foram apagados (usado pelo "Desfazer"). */
-export async function excluirLancamentos(ids: readonly string[]): Promise<number> {
-  if (ids.length === 0) return 0;
+  async listarFiados() {
+    const { data, error } = await db()
+      .select(COLUNAS)
+      .is("anulado_em", null)
+      .or("forma_pagamento.eq.fiado,natureza.eq.recebimento_fiado")
+      .order("created_at", { ascending: true });
+    if (error) falha("listar fiados", error);
+    return (data ?? []) as LancamentoSalvo[];
+  },
 
-  const { data, error } = await getSupabaseServerClient()
-    .from(TABELA)
-    .delete()
-    .in("id", ids)
-    .select("id");
+  async ultimos(n: number) {
+    const { data, error } = await db()
+      .select(COLUNAS)
+      .is("anulado_em", null)
+      .order("created_at", { ascending: false })
+      .limit(n);
+    if (error) falha("listar últimos lançamentos", error);
+    return (data ?? []) as LancamentoSalvo[];
+  },
 
-  if (error) {
-    throw new RepositoryError(`Falha ao apagar lançamentos: ${error.message}`, { cause: error });
-  }
-  return data?.length ?? 0;
-}
+  async buscarPorId(id: string) {
+    const { data, error } = await db().select(COLUNAS).eq("id", id).maybeSingle();
+    if (error) falha("buscar lançamento", error);
+    return (data ?? null) as LancamentoSalvo | null;
+  },
+
+  async anular(id: string) {
+    const { data, error } = await db()
+      .update({ anulado_em: new Date().toISOString() })
+      .eq("id", id)
+      .is("anulado_em", null)
+      .select(COLUNAS)
+      .maybeSingle();
+    if (error) falha("desfazer lançamento", error);
+    return (data ?? null) as LancamentoSalvo | null;
+  },
+
+  async atualizar(id: string, campos: CamposCorrecao) {
+    const { data, error } = await db()
+      .update(campos)
+      .eq("id", id)
+      .is("anulado_em", null)
+      .select(COLUNAS)
+      .maybeSingle();
+    if (error) falha("corrigir lançamento", error);
+    return (data ?? null) as LancamentoSalvo | null;
+  },
+};

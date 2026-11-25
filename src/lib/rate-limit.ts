@@ -1,145 +1,132 @@
-import { hojeBR, segundosAteMeiaNoiteBR } from "@/lib/datas";
+import { hojeBR } from "@/lib/datas";
 
 /**
- * Rate limit em memória para o /api/interpret.
+ * Rate limits em memória.
  *
- * Limitação conhecida: a memória é de cada instância do servidor. Na Vercel
- * cada instância (e cada cold start) tem seus próprios contadores, então o
- * limite real pode ser maior que o configurado. Serve para conter abuso e
- * gasto acidental com o modelo; para um limite exato, use um store
- * compartilhado (ex.: Redis/Upstash).
+ * Limitação conhecida: em serverless cada instância tem seu próprio contador,
+ * então o limite real pode ser maior. Para produção com várias instâncias,
+ * trocar por um contador compartilhado (ex.: tabela no Supabase ou Upstash).
  */
 
-export type ResultadoLimite =
-  | { ok: true }
-  | { ok: false; motivo: "ip" | "global"; segundosParaLiberar: number };
+export type Verificacao = { ok: boolean; tenteEmSegundos: number };
 
-type Janela = { inicio: number; contagem: number };
+/**
+ * Limite por chave (IP), janela deslizante.
+ * `consultar` não gasta cota; `registrar` gasta; `verificar` faz os dois
+ * (só registra se estiver liberado).
+ */
+export function criarRateLimit({ limite, janelaMs }: { limite: number; janelaMs: number }) {
+  const acessos = new Map<string, number[]>();
 
-/** `limite` chamadas por chave a cada `janelaMs` (janela fixa a partir da 1ª chamada). */
-export class LimitePorChave {
-  private readonly janelas = new Map<string, Janela>();
+  const recentesDe = (chave: string, agora: number) => {
+    const recentes = (acessos.get(chave) ?? []).filter((t) => agora - t < janelaMs);
+    acessos.set(chave, recentes);
+    return recentes;
+  };
 
-  constructor(
-    readonly limite: number,
-    readonly janelaMs: number,
-  ) {}
+  const consultar = (chave: string, agora: number = Date.now()): Verificacao => {
+    const recentes = recentesDe(chave, agora);
+    return recentes.length >= limite
+      ? { ok: false, tenteEmSegundos: Math.ceil((recentes[0] + janelaMs - agora) / 1000) }
+      : { ok: true, tenteEmSegundos: 0 };
+  };
 
-  /** Milissegundos até a chave voltar a ser aceita (0 = pode agora). */
-  esperaMs(chave: string, agora: number): number {
-    const janela = this.janelas.get(chave);
-    if (!janela || agora - janela.inicio >= this.janelaMs) return 0;
-    if (janela.contagem < this.limite) return 0;
-    return janela.inicio + this.janelaMs - agora;
-  }
-
-  registrar(chave: string, agora: number): void {
-    const janela = this.janelas.get(chave);
-    if (janela && agora - janela.inicio < this.janelaMs) {
-      janela.contagem++;
-      return;
+  const registrar = (chave: string, agora: number = Date.now()) => {
+    recentesDe(chave, agora).push(agora);
+    // Faxina ocasional para o Map não crescer para sempre.
+    if (acessos.size > 10_000) {
+      for (const [k, ts] of acessos) if (ts.every((t) => agora - t >= janelaMs)) acessos.delete(k);
     }
-    this.limparExpiradas(agora);
-    this.janelas.set(chave, { inicio: agora, contagem: 1 });
-  }
-
-  reiniciar(): void {
-    this.janelas.clear();
-  }
-
-  /** Quantas chaves estão sendo acompanhadas. */
-  get tamanho(): number {
-    return this.janelas.size;
-  }
-
-  /** Evita que o Map cresça para sempre com IPs que não voltam. */
-  private limparExpiradas(agora: number): void {
-    if (this.janelas.size < 1000) return;
-    for (const [chave, janela] of this.janelas) {
-      if (agora - janela.inicio >= this.janelaMs) this.janelas.delete(chave);
-    }
-  }
-}
-
-/** `limite` chamadas por dia de Brasília: zera sozinho à meia-noite (America/Sao_Paulo). */
-export class TetoDiario {
-  private dia = "";
-  private contagem = 0;
-
-  constructor(readonly limite: number) {}
-
-  esgotado(agora: Date): boolean {
-    this.virarDia(agora);
-    return this.contagem >= this.limite;
-  }
-
-  registrar(agora: Date): void {
-    this.virarDia(agora);
-    this.contagem++;
-  }
-
-  reiniciar(): void {
-    this.dia = "";
-    this.contagem = 0;
-  }
-
-  private virarDia(agora: Date): void {
-    const hoje = hojeBR(agora);
-    if (hoje !== this.dia) {
-      this.dia = hoje;
-      this.contagem = 0;
-    }
-  }
-}
-
-export type ConfigLimite = {
-  /** Requisições por IP dentro da janela. */
-  porIp: number;
-  janelaMs: number;
-  /** Teto somando todos os IPs, por dia de Brasília. */
-  porDia: number;
-};
-
-export const LIMITE_INTERPRET: ConfigLimite = {
-  porIp: 60,
-  janelaMs: 10 * 60 * 1000,
-  porDia: 500,
-};
-
-/** Combina o limite por IP com o teto global. Só conta a requisição se as duas regras deixarem. */
-export function criarLimitador(config: ConfigLimite) {
-  const porIp = new LimitePorChave(config.porIp, config.janelaMs);
-  const global = new TetoDiario(config.porDia);
+  };
 
   return {
-    consumir(ip: string, agora: Date = new Date()): ResultadoLimite {
-      if (global.esgotado(agora)) {
-        return { ok: false, motivo: "global", segundosParaLiberar: segundosAteMeiaNoiteBR(agora) };
-      }
-      const espera = porIp.esperaMs(ip, agora.getTime());
-      if (espera > 0) {
-        return { ok: false, motivo: "ip", segundosParaLiberar: Math.ceil(espera / 1000) };
-      }
-      porIp.registrar(ip, agora.getTime());
-      global.registrar(agora);
-      return { ok: true };
+    consultar,
+    registrar,
+    verificar(chave: string, agora: number = Date.now()): Verificacao {
+      const v = consultar(chave, agora);
+      if (v.ok) registrar(chave, agora);
+      return v;
     },
-    reiniciar(): void {
-      porIp.reiniciar();
-      global.reiniciar();
+    limpar() {
+      acessos.clear();
     },
   };
 }
 
-/** Instância usada pelo POST /api/interpret (estado do processo). */
-export const limiteInterpret = criarLimitador(LIMITE_INTERPRET);
+/** Segundos de `agora` até a próxima meia-noite de Brasília. */
+export function segundosAteMeiaNoiteBR(agora: number = Date.now()): number {
+  const [ano, mes, dia] = hojeBR(new Date(agora)).split("-").map(Number);
+  // Brasília é UTC-3 o ano todo (sem horário de verão desde 2019): 00:00 BRT = 03:00 UTC.
+  const meiaNoite = Date.UTC(ano, mes - 1, dia + 1, 3, 0, 0);
+  return Math.max(1, Math.ceil((meiaNoite - agora) / 1000));
+}
 
-/**
- * IP do cliente. Na Vercel o primeiro item do x-forwarded-for é o IP real
- * (a plataforma sobrescreve o cabeçalho). Fora de um proxy confiável esse
- * cabeçalho pode ser forjado, por isso o teto global existe.
- */
+/** Teto global por dia (todas as pessoas juntas), zerando à meia-noite de Brasília. */
+export function criarTetoDiario({ limite }: { limite: number }) {
+  let dia = "";
+  let usados = 0;
+
+  const atualizar = (agora: number) => {
+    const hoje = hojeBR(new Date(agora));
+    if (hoje !== dia) {
+      dia = hoje;
+      usados = 0;
+    }
+  };
+
+  const consultar = (agora: number = Date.now()): Verificacao => {
+    atualizar(agora);
+    return usados >= limite
+      ? { ok: false, tenteEmSegundos: segundosAteMeiaNoiteBR(agora) }
+      : { ok: true, tenteEmSegundos: 0 };
+  };
+
+  return {
+    consultar,
+    registrar(agora: number = Date.now()) {
+      atualizar(agora);
+      usados++;
+    },
+    limpar() {
+      dia = "";
+      usados = 0;
+    },
+  };
+}
+
+/** IP do cliente atrás de proxy (Vercel preenche x-forwarded-for). */
 export function ipDaRequisicao(request: Request): string {
   const encaminhado = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   return encaminhado || request.headers.get("x-real-ip")?.trim() || "desconhecido";
+}
+
+/** POST /api/interpret: 60 mensagens a cada 10 minutos por IP... */
+export const rateLimitInterpret = criarRateLimit({ limite: 60, janelaMs: 10 * 60 * 1000 });
+/** ...e no máximo 500 por dia no total (protege o gasto com o modelo). */
+export const tetoDiarioInterpret = criarTetoDiario({ limite: 500 });
+
+/** POST /api/lancamentos/:id/desfazer: 30 a cada 10 minutos por IP. */
+export const rateLimitDesfazer = criarRateLimit({ limite: 30, janelaMs: 10 * 60 * 1000 });
+
+const json429 = (mensagem: string, tenteEmSegundos: number) =>
+  Response.json(
+    { error: mensagem },
+    { status: 429, headers: { "retry-after": String(tenteEmSegundos) } },
+  );
+
+/** 429 do limite por IP, em português, com Retry-After. */
+export function respostaLimiteExcedido(tenteEmSegundos: number, oQue = "requisições"): Response {
+  const minutos = Math.max(1, Math.ceil(tenteEmSegundos / 60));
+  return json429(
+    `Muitas ${oQue} em pouco tempo. Espere ${minutos} minuto${minutos > 1 ? "s" : ""} e tente de novo.`,
+    tenteEmSegundos,
+  );
+}
+
+/** 429 do teto diário global, em português, com Retry-After até a meia-noite. */
+export function respostaTetoDiario(tenteEmSegundos: number): Response {
+  return json429(
+    "A MEIva atingiu o limite de mensagens de hoje. Volta a funcionar à meia-noite (horário de Brasília).",
+    tenteEmSegundos,
+  );
 }
