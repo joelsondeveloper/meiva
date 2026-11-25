@@ -1,7 +1,7 @@
 "use client"; // Error boundaries precisam ser Client Components.
 
-import Link from "next/link";
 import { useEffect } from "react";
+import { BotaoSecundario, Pagina } from "@/components/pagina";
 
 export default function Erro({ error, retry }: { error: unknown; retry: () => void }) {
   useEffect(() => {
@@ -9,25 +9,24 @@ export default function Erro({ error, retry }: { error: unknown; retry: () => vo
   }, [error]);
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-4 px-4 py-8">
-      <title>Algo deu errado · MEIva</title>
-      <h1 className="text-3xl font-bold">Algo deu errado</h1>
-      <p className="text-lg">
-        Não foi culpa sua. Os lançamentos já salvos continuam guardados. Tente de novo.
-      </p>
-      <button
-        type="button"
-        onClick={() => retry()}
-        className="mt-2 min-h-12 rounded-xl bg-primaria px-6 text-lg font-semibold text-sobre-primaria hover:bg-primaria-forte"
-      >
-        Tentar de novo
-      </button>
-      <Link
-        href="/"
-        className="flex min-h-12 items-center justify-center rounded-xl border-2 border-borda-forte px-6 text-lg font-semibold"
-      >
-        Voltar para o início
-      </Link>
-    </main>
+    <Pagina titulo="Esta página não abriu" descricao="O que você já anotou continua guardado.">
+      <title>Esta página não abriu · MEIva</title>
+      <section className="flex flex-col items-start gap-4 rounded-3xl border border-borda bg-superficie p-6 sm:p-8">
+        <p className="max-w-prose text-lg">
+          Pode ser a internet ou o servidor. Confira a conexão e tente de novo. Se continuar, volte
+          para a Conversa e tente daqui a pouco.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => retry()}
+            className="inline-flex min-h-14 items-center justify-center rounded-2xl bg-acento px-6 text-lg font-bold text-sobre-acento hover:bg-acento-forte"
+          >
+            Tentar de novo
+          </button>
+          <BotaoSecundario href="/">Ir para a Conversa</BotaoSecundario>
+        </div>
+      </section>
+    </Pagina>
   );
 }
