@@ -102,16 +102,25 @@ proxy.ts (senha) ─▶ rate limit ─▶ agente (LLM via OpenRouter, function c
 
 ### Cores e acessibilidade
 
-Todas as cores são design tokens em `src/app/globals.css` (`--cor-fundo`,
-`--cor-texto`, `--cor-entrada`, `--cor-saida`...). Para trocar a paleta da
-marca, mude só esse arquivo e rode `npm test`: o teste confere o contraste
-(texto 4.5:1) e barra cor fixa nos componentes. A única cópia fora dele é o
-`theme-color` em `src/app/layout.tsx` (o teste avisa se divergir).
+O design system (paleta, tipografia, movimento e textos) está em
+[docs/design-system.md](docs/design-system.md), com screenshots em
+`docs/screenshots/`.
 
-Regras de interface: texto de no mínimo 16px, entrelinha 1.4+, áreas de toque
-de 44x44px, foco visível, e entrada/saída sempre com sinal (+/−) e ícone,
-nunca só pela cor. Cada registro tem um ícone próprio: entrada, saída, fiado,
-caixa inicial (aporte) e retirada pessoal.
+Todas as cores são design tokens em `src/app/globals.css` (`--cor-fundo`,
+`--cor-texto`, `--cor-primaria`, `--cor-acento`, `--cor-entrada`...). Para
+trocar a paleta da marca, mude só esse arquivo e rode `npm test`: o teste
+confere o contraste (texto principal 7:1, demais textos 4.5:1) e barra cor fixa
+nos componentes. A única cópia fora dele é o `theme-color` em
+`src/app/layout.tsx` (o teste avisa se divergir).
+
+Regras de interface: corpo de 18px com entrelinha 1.55, áreas de toque de
+48px ou mais, foco visível e nada só pela cor. Cada registro tem sinal (+/−) e
+ícone próprio (entrada, saída, fiado, caixa inicial e retirada pessoal); o
+fiado não tem sinal, e sim o selo "a receber".
+
+Para ver as telas com dados fictícios em desenvolvimento, rode o dev com
+`MEIVA_DADOS_DEMO=1`: as páginas Resumo e Fiados passam a usar um repositório
+em memória (isso nunca liga em produção).
 
 ## Scripts
 
@@ -150,14 +159,21 @@ src/
 │   ├── api/interpret/route.ts     # POST: agente (com rate limit)
 │   ├── api/lancamentos/route.ts   # GET: lançamentos e resumo do dia
 │   ├── api/lancamentos/[id]/desfazer/route.ts   # POST: Desfazer (soft delete)
-│   ├── layout.tsx                 # metadados, viewport, theme-color
-│   ├── page.tsx                   # tela do chat
+│   ├── layout.tsx                 # fonte, metadados, theme-color e navegação
+│   ├── page.tsx                   # Conversa (chat com o agente)
+│   ├── resumo/page.tsx            # Resumo: caixa, entrou e saiu, fiados, últimas anotações
+│   ├── fiados/page.tsx            # Fiados: quem deve, por pessoa, e Registrar pagamento
 │   ├── not-found.tsx, error.tsx, global-error.tsx
 │   └── globals.css                # design tokens e base de acessibilidade
-├── components/chat/               # chat, bolhas, boas-vindas, resumo, ícones
+├── components/
+│   ├── chat/                      # conversa, bolhas, boas-vindas e painel Caixa
+│   ├── navegacao/                 # barra de abas (celular) e barra lateral (computador)
+│   ├── lancamento/linha.tsx       # linha de lançamento com ícone, sinal e selo "a receber"
+│   └── pagina.tsx, marca.tsx, icones.tsx
 └── lib/
     ├── agente/                    # agente, prompt, ferramentas e repositório em memória
     ├── chat/                      # chamadas da API, histórico e categoria de cada registro
+    ├── dados/                     # repositório das páginas Resumo/Fiados e períodos
     ├── interpreter/               # schemas Zod (e o interpretador antigo, ainda não removido)
     ├── lancamentos/               # repository Supabase, saldo, resumo, pessoa e tipos
     ├── llm/openrouter.ts          # cliente OpenAI apontando para o OpenRouter
