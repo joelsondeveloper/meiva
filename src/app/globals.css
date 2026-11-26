@@ -23,12 +23,13 @@
 :root {
   color-scheme: light;
 
-  --cor-fundo: #f6f5f1;
-  --cor-superficie: #fdfcf9;
+  /* "Papel de caixa": off-white frio, puxado para o petróleo (não o creme quente). */
+  --cor-fundo: #f2f4f2;
+  --cor-superficie: #fdfdfb;
   --cor-texto: #1b2422;
   --cor-texto-suave: #4a5552;
   /* Divisórias (decorativas) */
-  --cor-borda: #e2e0d9;
+  --cor-borda: #dfe4e1;
   /* Contorno de campos e botões secundários (precisa de 3:1) */
   --cor-borda-forte: #7a8380;
 
@@ -42,6 +43,11 @@
   --cor-sobre-acento: #1b2422;
 
   --cor-foco: #0d5c57;
+
+  /* Bloco herói do Resumo (o único bloco de cor cheia do app). */
+  --cor-heroi: #0d5c57;
+  --cor-sobre-heroi: #ffffff;
+  --cor-heroi-suave: #d5ebe7;
 
   --cor-entrada: #1d7343;
   --cor-entrada-suave: #e6f3ea;
@@ -75,6 +81,10 @@
 
     --cor-foco: #5cc2b7;
 
+    --cor-heroi: #0f3f3b;
+    --cor-sobre-heroi: #edf0ee;
+    --cor-heroi-suave: #a9cfc9;
+
     --cor-entrada: #63c98d;
     --cor-entrada-suave: #15291e;
     --cor-saida: #f2907f;
@@ -104,6 +114,9 @@
   --color-acento-forte: var(--cor-acento-forte);
   --color-sobre-acento: var(--cor-sobre-acento);
   --color-foco: var(--cor-foco);
+  --color-heroi: var(--cor-heroi);
+  --color-sobre-heroi: var(--cor-sobre-heroi);
+  --color-heroi-suave: var(--cor-heroi-suave);
   --color-entrada: var(--cor-entrada);
   --color-entrada-suave: var(--cor-entrada-suave);
   --color-saida: var(--cor-saida);
@@ -113,7 +126,44 @@
   --color-erro: var(--cor-erro);
   --color-erro-suave: var(--cor-erro-suave);
 
-  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  /*
+   * Depois da Atkinson, duas fontes de reserva com as medidas ajustadas
+   * (@font-face abaixo): enquanto a Atkinson carrega, o texto já ocupa o
+   * mesmo espaço e não "pula" quando ela chega.
+   */
+  --font-sans: var(--font-atkinson), "Atkinson Reserva Arial", "Atkinson Reserva Roboto", ui-sans-serif, system-ui,
+    sans-serif;
+
+  /* Raios por hierarquia: bloco principal > bloco de apoio > controle > selo. */
+  --radius-bloco: 1.5rem;
+  --radius-apoio: 1rem;
+  --radius-controle: 0.875rem;
+  --radius-selo: 0.5rem;
+}
+
+/*
+ * Reserva da Atkinson Hyperlegible Next. Medidas da fonte: ascendente 984,
+ * descendente 316, entrelinha 0 (em 1000). Largura medida num texto do app:
+ * Arial 1,1% mais larga (size-adjust 98,9%); Roboto 9,5% mais estreita
+ * (size-adjust 109,5%). Os overrides dividem as medidas pelo size-adjust.
+ * O next/font não gera essa reserva para esta fonte (não tem as métricas dela).
+ */
+@font-face {
+  font-family: "Atkinson Reserva Arial";
+  src: local("Arial"), local("Helvetica"), local("Liberation Sans");
+  size-adjust: 98.9%;
+  ascent-override: 99.5%;
+  descent-override: 31.95%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Atkinson Reserva Roboto";
+  src: local("Roboto");
+  size-adjust: 109.5%;
+  ascent-override: 89.86%;
+  descent-override: 28.86%;
+  line-gap-override: 0%;
 }
 
 /*
@@ -152,8 +202,19 @@
   }
 }
 
+/*
+ * Valores em reais (componente <Valor>). A Atkinson desenha o zero cortado
+ * (0 diferente de O); a versão do Google Fonts não traz um zero alternativo.
+ * Para testar outro desenho só nos valores, troque --fonte-valor.
+ */
+@utility valor {
+  font-family: var(--fonte-valor);
+  font-variant-numeric: tabular-nums;
+}
+
 @layer base {
   :root {
+    --fonte-valor: var(--font-sans);
     /* Altura da barra de abas do celular (some no desktop e com o teclado aberto). */
     --altura-abas: calc(4.5rem + env(safe-area-inset-bottom));
   }
@@ -186,6 +247,27 @@
     font-family: var(--font-sans);
     font-size: var(--text-base);
     line-height: 1.55;
+  }
+
+  /* Superfícies do navegador também seguem a paleta. */
+  ::selection {
+    background: var(--cor-primaria-suave);
+    color: var(--cor-texto);
+  }
+  html {
+    accent-color: var(--cor-primaria);
+    caret-color: var(--cor-primaria);
+    scrollbar-color: var(--cor-borda-forte) transparent;
+  }
+
+  /* Sem palavra sozinha na última linha de um parágrafo; títulos equilibrados. */
+  p {
+    text-wrap: pretty;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
   }
 
   /* Foco sempre visível ao navegar por teclado (e em campos de texto). */

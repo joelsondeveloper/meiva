@@ -30,7 +30,7 @@ export const metadata: Metadata = {
  * se divergir de globals.css.
  */
 const COR_BARRA = {
-  claro: "#fdfcf9",
+  claro: "#fdfdfb",
   escuro: "#1b2422",
 };
 
