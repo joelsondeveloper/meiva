@@ -212,9 +212,10 @@
 }
 
 /*
- * Valores em reais (componente <Valor>). A Atkinson desenha o zero cortado
- * (0 diferente de O); a versão do Google Fonts não traz um zero alternativo.
- * Para testar outro desenho só nos valores, troque --fonte-valor.
+ * Valores em reais (componente <Valor>): Lexend, com zero sem corte (a
+ * Atkinson desenha o zero cortado e a versão do Google Fonts não traz um
+ * alternativo). Só os números de dinheiro usam a Lexend; o texto fica na Atkinson.
+ * Para voltar ao zero cortado: --fonte-valor: var(--font-sans).
  */
 @utility valor {
   font-family: var(--fonte-valor);
@@ -223,7 +224,7 @@
 
 @layer base {
   :root {
-    --fonte-valor: var(--font-sans);
+    --fonte-valor: var(--font-lexend), var(--font-sans);
     /* Altura da barra de abas do celular (some no desktop e com o teclado aberto). */
     --altura-abas: calc(4.5rem + env(safe-area-inset-bottom));
   }

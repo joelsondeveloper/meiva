@@ -36,8 +36,9 @@ Também existem as variações `-forte` (hover), `-suave` (fundos de ícone e de
 
 ## Tipografia
 
-- **Uma família:** [Atkinson Hyperlegible Next](https://www.brailleinstitute.org/freefont/), do Braille Institute, desenhada para baixa visão (I, l e 1 diferentes; 0 cortado). Pesos 400 e 700.
-- **Valores em reais:** sempre `tabular-nums`. A fonte tem algarismos tabulares de verdade (conferido: "1111" e "8888" têm a mesma largura).
+- **Texto:** [Atkinson Hyperlegible Next](https://www.brailleinstitute.org/freefont/), do Braille Institute, desenhada para baixa visão (I, l e 1 diferentes). Pesos 400 e 700.
+- **Valores em reais:** [Lexend](https://fonts.google.com/specimen/Lexend), pesos 400 e 700, só nos números de dinheiro (`<Valor>`, `--fonte-valor`). Escolhida pelo dono do produto em 26/11/2026 para testar com pessoas reais: o zero sem corte é mais familiar que o zero cortado da Atkinson.
+- **Algarismos:** a Lexend servida pelo Google Fonts **não tem algarismos tabulares** (features: `ccmp dnom frac liga locl numr`; medido: "1111" = 89,8px e "8888" = 95,8px em 40px). A classe `valor` mantém `tabular-nums` para o caso de voltar à Atkinson. Na prática, valores alinhados à direita com centavos iguais alinham pela vírgula; só a parte inteira varia de largura.
 - **Escala** (o corpo nunca fica abaixo de 18px; o menor texto da tela é 18px):
 
 | Classe | Tamanho / entrelinha | Uso |
@@ -114,7 +115,9 @@ Comparação da identidade atual com o que a base do UI/UX Pro Max recomenda par
 
 ### Zero cortado nos valores
 
-A Atkinson Hyperlegible Next desenha o zero cortado. A versão servida pelo Google Fonts só traz as features `ccmp`, `frac`, `locl`, `pnum` e `tnum`: não há zero alternativo para desligar. Todo valor em reais usa `<Valor>`, com a fonte em `--fonte-valor` (`globals.css`). Para testar outro desenho só nos números, basta carregar a fonte com `next/font` e trocar essa variável. Comparação em `docs/direcoes/zero.png` (Atkinson × Lexend).
+A Atkinson Hyperlegible Next desenha o zero cortado, e a versão do Google Fonts não traz um zero alternativo (só `ccmp frac locl pnum tnum`). Decisão de 26/11/2026: **Lexend só nos valores em reais**, via `--fonte-valor` (`globals.css`) e `next/font` (`layout.tsx`). Comparação em `docs/direcoes/zero.png`. Para voltar ao zero cortado, basta `--fonte-valor: var(--font-sans)`. `tests/tema.test.ts` confere a ligação.
+
+Conferido em 320, 390 e 1280px (claro e escuro): nenhum valor estoura nem corta (script do Playwright mede a largura da página e de cada `.valor`).
 
 ### Fonte sem pulo
 

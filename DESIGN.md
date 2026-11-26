@@ -4,7 +4,7 @@ Resumo para quem vai mexer na interface. As regras completas estão em [docs/des
 
 - **Marca:** parceira, clara, confiável. Simples sem ser infantil; moderna sem efeito.
 - **Cores:** petróleo `#0d5c57` (marca e navegação), âmbar `#f2b134` (só o botão principal), verde (entrou), tijolo (saiu), azul (fiado, a receber), fundo "papel de caixa" `#f2f4f2`. O bloco herói do Resumo (`heroi`) é o único bloco de cor cheia. Tokens em `src/app/globals.css`; nunca use cor fixa nos componentes (o teste barra).
-- **Tipografia:** Atkinson Hyperlegible Next, uma família só, corpo de 18px. Todo valor em reais passa por `<Valor>` (classe `valor`: algarismos tabulares e `--fonte-valor`). A fonte tem reserva com medidas ajustadas: o texto não pula ao carregar.
+- **Tipografia:** Atkinson Hyperlegible Next no texto, corpo de 18px, com reserva de medidas ajustadas (o texto não pula ao carregar). **Valores em reais em Lexend** (zero sem corte), só eles: todo dinheiro passa por `<Valor>` (classe `valor`, `--fonte-valor`). A Lexend não tem algarismos tabulares: valores alinhados à direita continuam alinhados pela vírgula, mas números de larguras diferentes não formam coluna perfeita.
 - **Navegação:** Conversa, Resumo, Fiados, nessa ordem e com esses nomes. Barra de abas embaixo no celular; barra lateral no computador.
 - **Cada tela:** título grande, uma frase, um botão principal. Estados de carregando, vazio e erro com texto humano.
 - **Assinatura: o comprovante.** Toda resposta que anota algo mostra a hora, as linhas, "Mudou no caixa" em reais e, no mais recente, "Caixa de hoje agora". O texto da MEIva não tem bolha; só a pessoa tem (não imitar mensageiro).

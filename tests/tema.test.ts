@@ -168,3 +168,25 @@ describe("componentes sem cor fixa", () => {
     });
   });
 });
+
+describe("fonte dos valores em reais", () => {
+  const layout = readFileSync(LAYOUT, "utf8");
+  const valor = readFileSync(join(RAIZ, "src/components/valor.tsx"), "utf8");
+
+  test("--fonte-valor usa a Lexend (zero sem corte) e cai para a fonte do texto", () => {
+    expect(css).toMatch(/--fonte-valor:\s*var\(--font-lexend\),\s*var\(--font-sans\);/);
+  });
+
+  test("o layout carrega a Lexend na variável --font-lexend e a aplica no <html>", () => {
+    expect(layout).toMatch(/Lexend\(\{[\s\S]*?variable:\s*"--font-lexend"/);
+    expect(layout).toMatch(/\$\{lexend\.variable\}/);
+  });
+
+  test("a Atkinson continua sendo a fonte do texto", () => {
+    expect(css).toMatch(/--font-sans:\s*var\(--font-atkinson\)/);
+  });
+
+  test("<Valor> aplica a classe valor", () => {
+    expect(valor).toMatch(/className=\{`valor /);
+  });
+});

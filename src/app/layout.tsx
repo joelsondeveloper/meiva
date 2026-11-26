@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Next } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, Lexend } from "next/font/google";
 import { Navegacao } from "@/components/navegacao/navegacao";
 import "./globals.css";
 
@@ -9,6 +9,18 @@ import "./globals.css";
  */
 const atkinson = Atkinson_Hyperlegible_Next({
   variable: "--font-atkinson",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+/**
+ * Lexend só nos valores em reais (--fonte-valor, classe `valor`): o zero sem
+ * corte da Lexend é mais familiar que o zero cortado da Atkinson (escolha do
+ * dono do produto, para testar com pessoas reais). O resto do texto continua
+ * na Atkinson.
+ */
+const lexend = Lexend({
+  variable: "--font-lexend",
   subsets: ["latin"],
   weight: ["400", "700"],
 });
@@ -56,7 +68,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${atkinson.variable} h-full antialiased`}>
+    <html lang="pt-BR" className={`${atkinson.variable} ${lexend.variable} h-full antialiased`}>
       <body className="min-h-full bg-fundo text-texto">
         <a
           href="#conteudo"
