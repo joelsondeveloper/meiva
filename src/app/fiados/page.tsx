@@ -141,7 +141,7 @@ function DetalhePessoa({ devedor: d }: { devedor: Devedor }) {
       </Link>
 
       {/* Conta em aberto: a faixa azul do fiado marca o bloco, o valor vem escrito e com selo. */}
-      <div className="rounded-bloco rounded-l-md border border-l-[6px] border-borda border-l-fiado bg-superficie p-5 sm:p-8">
+      <div className="rounded-bloco rounded-l-md border border-l-[6px] border-borda border-l-fiado bg-superficie p-4 sm:p-8">
         <h2 id="pessoa-titulo" className="text-2xl font-bold break-words">
           {d.pessoa}
         </h2>
@@ -149,7 +149,7 @@ function DetalhePessoa({ devedor: d }: { devedor: Devedor }) {
         <p className="text-5xl font-bold text-fiado">
           <Valor centavos={d.valor_centavos} destaque />
         </p>
-        <div className="mt-6">
+        <div className="mt-6 [&>a]:w-full sm:[&>a]:w-auto">
           <BotaoPrincipal href={`/?frase=${encodeURIComponent(`${d.pessoa} pagou `)}`}>
             Registrar pagamento
           </BotaoPrincipal>

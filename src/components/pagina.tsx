@@ -35,7 +35,7 @@ export function Pagina({
   );
 }
 
-const BOTAO = "inline-flex min-h-14 items-center justify-center gap-2 rounded-controle px-6 text-lg font-bold";
+const BOTAO = "inline-flex min-h-14 items-center justify-center gap-2 rounded-controle px-4 text-center text-lg font-bold sm:px-6";
 
 /** Botão principal da tela (um só por tela): âmbar. */
 export function BotaoPrincipal({ href, children }: { href: string; children: ReactNode }) {
