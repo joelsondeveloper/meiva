@@ -257,10 +257,11 @@ export function Chat() {
             <button
               type="submit"
               disabled={anotando || !texto.trim()}
-              className="flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-controle bg-acento px-5 text-lg font-bold text-sobre-acento transition-[background-color,scale] duration-150 hover:bg-acento-forte active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-controle bg-acento px-4 sm:px-5 text-lg font-bold text-sobre-acento transition-[background-color,scale] duration-150 hover:bg-acento-forte active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <IconeEnviar className="size-5" />
-              Enviar
+              {/* Em telas de 320px o rótulo vira só para o leitor de tela, para o campo caber numa linha. */}
+              <span className="max-[359px]:sr-only">Enviar</span>
             </button>
           </div>
           {texto.length >= MOSTRAR_CONTADOR_A_PARTIR_DE && (
