@@ -3,11 +3,13 @@
 Resumo para quem vai mexer na interface. As regras completas estão em [docs/design-system.md](docs/design-system.md).
 
 - **Marca:** parceira, clara, confiável. Simples sem ser infantil; moderna sem efeito.
-- **Cores:** petróleo `#0d5c57` (marca e navegação), âmbar `#f2b134` (só o botão principal), verde (entrou), tijolo (saiu), azul (fiado, a receber). Tokens em `src/app/globals.css`; nunca use cor fixa nos componentes (o teste barra).
-- **Tipografia:** Atkinson Hyperlegible Next, uma família só, corpo de 18px, valores com `tabular-nums`.
+- **Cores:** petróleo `#0d5c57` (marca e navegação), âmbar `#f2b134` (só o botão principal), verde (entrou), tijolo (saiu), azul (fiado, a receber), fundo "papel de caixa" `#f2f4f2`. O bloco herói do Resumo (`heroi`) é o único bloco de cor cheia. Tokens em `src/app/globals.css`; nunca use cor fixa nos componentes (o teste barra).
+- **Tipografia:** Atkinson Hyperlegible Next, uma família só, corpo de 18px. Todo valor em reais passa por `<Valor>` (classe `valor`: algarismos tabulares e `--fonte-valor`). A fonte tem reserva com medidas ajustadas: o texto não pula ao carregar.
 - **Navegação:** Conversa, Resumo, Fiados, nessa ordem e com esses nomes. Barra de abas embaixo no celular; barra lateral no computador.
 - **Cada tela:** título grande, uma frase, um botão principal. Estados de carregando, vazio e erro com texto humano.
-- **Lançamentos:** ícone + o que foi + como ("Venda no Pix") + valor com sinal. O fiado não tem sinal: tem o selo "a receber".
-- **Movimento:** só em resposta a uma ação, entre 150 e 200ms, e desligado com `prefers-reduced-motion`.
+- **Assinatura: o comprovante.** Toda resposta que anota algo mostra a hora, as linhas, "Mudou no caixa" em reais e, no mais recente, "Caixa de hoje agora". O texto da MEIva não tem bolha; só a pessoa tem (não imitar mensageiro).
+- **Lançamentos:** ícone na cor da categoria (sem círculo) + o que foi + como ("Venda no Pix") + valor com sinal. O fiado não tem sinal: tem o selo "a receber" com contorno. Desfazer discreto, com 48px de altura.
+- **Raios:** bloco 24px, apoio 16px, controle 14px, selo 8px. Listas são linhas com divisória, não cartões.
+- **Movimento:** só em resposta a uma ação, até 250ms. Com `prefers-reduced-motion`, sai o que desloca ou escala; ficam fade e troca de cor.
 
-Screenshots em `docs/screenshots/` (390px e 1280px, claro e escuro). Para gerar de novo com dados fictícios, rode o dev com `MEIVA_DADOS_DEMO=1` (só funciona fora de produção) e simule as rotas `/api/*` no Playwright.
+Screenshots em `docs/screenshots/antes` e `docs/screenshots/depois` (320, 390 e 1280px, claro e escuro). Plano da reformulação: [docs/reformulacao.md](docs/reformulacao.md). Para gerar de novo com dados fictícios, rode o dev com `MEIVA_DADOS_DEMO=1` (só funciona fora de produção) e simule as rotas `/api/*` no Playwright.
