@@ -124,6 +124,15 @@ export const IconeDesfazer = (p: P) => (
   </Icone>
 );
 
+/** Começar outra conversa: balão com "+". */
+export const IconeNovaConversa = (p: P) => (
+  <Icone {...p}>
+    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+    <path d="M12 8v8" />
+    <path d="M8 12h8" />
+  </Icone>
+);
+
 export const IconeEnviar = (p: P) => (
   <Icone {...p}>
     <path d="m22 2-11 11" />
