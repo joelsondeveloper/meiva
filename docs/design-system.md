@@ -83,3 +83,28 @@ O movimento só aparece em resposta a uma ação da pessoa e dura pouco.
 - Palavras do dia a dia: **venda, gasto, fiado, recebimento, caixa inicial, retirada pessoal**. Nunca "lançamento", "natureza" ou "despesa" na tela.
 - Erros dizem o que aconteceu e o que fazer, sem pedir desculpa.
 - Estado vazio é um convite ("Ninguém está devendo. Que bom!").
+
+## Revisão com o UI/UX Pro Max (26/11/2026)
+
+Comparação da identidade atual com o que a base do UI/UX Pro Max recomenda para "finanças de pequeno negócio, acessível, público idoso". **Nada aqui foi aplicado ainda**: são propostas, à espera de aprovação.
+
+### O que a base recomenda e o que fazemos com isso
+
+| Tema | Recomendação da base | MEIva hoje | Decisão |
+| --- | --- | --- | --- |
+| Estilo | "Accessible & Ethical": contraste alto, texto 16px+, foco de 3–4px, reduced-motion | Corpo 18px, texto principal 7:1, foco de 3px | **Fica.** Já passamos do mínimo recomendado. |
+| Tipografia | Atkinson Hyperlegible para títulos e corpo | Atkinson Hyperlegible **Next** (mais pesos, algarismos tabulares) | **Fica.** É exatamente a recomendação, numa versão mais nova. |
+| Cor de marca | Azul de confiança (`#0369A1`) ou marinho de banco (`#0F172A`) | Petróleo `#0d5c57` | **Fica o petróleo.** O azul da base é o de qualquer banco, e o azul já tem papel aqui (fiado). O petróleo dá 7,2:1 sobre o fundo (o azul sugerido dá ~5,9:1) e continua "calmo + estável" sem ser genérico. |
+| CTA | Uma cor de destaque só no CTA (a base sugere verde `#16A34A`) | Âmbar só no botão principal | **Fica o âmbar.** Verde aqui significa "entrou dinheiro"; usar verde no botão misturaria os significados. Âmbar com texto escuro dá 8,4:1. |
+| Estilo de app de finanças pessoais | Glassmorphism + modo escuro OLED | Superfícies chapadas, sem sombra | **Rejeitado.** Vidro e desfoque baixam o contraste e confundem quem enxerga pouco. |
+| Ícones | Uma família, um traço, tamanhos por token, ícone decorativo com `aria-hidden` | Ícones próprios em traço, 20 e 24px | **Ajustar:** fixar dois tamanhos (`size-5` em linha, `size-6` na navegação) e um traço de 2px. |
+| Toque | Retorno ao toque em 80–150ms sem mexer no layout | `scale(0.97–0.99)` em 150ms | **Fica.** |
+
+### Ajustes pontuais propostos
+
+1. **Fundo um pouco mais frio.** `#f6f5f1` → `#f2f4f2` (claro). O creme quente é o fundo mais repetido em telas geradas por IA; puxar um fio de verde-petróleo casa o fundo com a marca. Contraste conferido: texto 14,4:1; texto-suave 7,0:1; petróleo 7,1:1; entrada 5,3:1; saída 5,5:1; fiado 6,2:1.
+2. **Valor em reais com hierarquia.** No número grande, o "R$" fica menor e em peso normal, alinhado pela base; os centavos continuam do mesmo tamanho (ninguém precisa adivinhar o valor).
+3. **Linhas sem o círculo pastel.** O ícone em círculo colorido é o padrão de qualquer app de finanças. Proposta: ícone direto na cor da categoria, alinhado ao texto, e o valor com sinal. Menos ruído, mesma informação (ícone + sinal + texto).
+4. **Raios por hierarquia, não um raio para tudo.** Bloco principal 24px, blocos de apoio 16px, controles 14px, selo 8px.
+5. **Menos cartão.** Listas (Últimas anotações, histórico do fiado) viram linhas com divisória direto no fundo; contorno só onde agrupa algo que a pessoa usa junto.
+6. **Comprovante da anotação.** A resposta do agente que anota algo ganha um rodapé "Caixa de hoje agora: R$ …", mostrando o efeito no saldo (ver o plano em `docs/reformulacao.md`).
