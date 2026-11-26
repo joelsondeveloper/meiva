@@ -35,7 +35,7 @@ export function Pagina({
   );
 }
 
-const BOTAO = "inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl px-6 text-lg font-bold";
+const BOTAO = "inline-flex min-h-14 items-center justify-center gap-2 rounded-controle px-6 text-lg font-bold";
 
 /** Botão principal da tela (um só por tela): âmbar. */
 export function BotaoPrincipal({ href, children }: { href: string; children: ReactNode }) {
@@ -66,8 +66,8 @@ export function Carregando({ texto }: { texto: string }) {
   return (
     <div role="status" className="flex flex-col gap-4">
       <p className="text-texto-suave">{texto}</p>
-      <div className="h-40 rounded-3xl bg-superficie" />
-      <div className="h-24 rounded-3xl bg-superficie" />
+      <div className="h-40 rounded-bloco bg-superficie" />
+      <div className="h-24 rounded-bloco bg-superficie" />
     </div>
   );
 }
@@ -75,7 +75,7 @@ export function Carregando({ texto }: { texto: string }) {
 /** Estado vazio: convite para agir, nunca um pedido de desculpas. */
 export function Vazio({ titulo, texto, acao }: { titulo: string; texto: string; acao?: ReactNode }) {
   return (
-    <section className="flex flex-col items-start gap-3 rounded-3xl border border-borda bg-superficie p-6 sm:p-8">
+    <section className="flex flex-col items-start gap-3 rounded-bloco border border-borda bg-superficie p-6 sm:p-8">
       <h2 className="text-2xl font-bold">{titulo}</h2>
       <p className="max-w-prose text-texto-suave">{texto}</p>
       {acao && <div className="mt-2">{acao}</div>}

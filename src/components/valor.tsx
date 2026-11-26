@@ -14,8 +14,10 @@ type Props = {
  * `valor` (algarismos tabulares e a fonte de --fonte-valor), para que trocar
  * o desenho dos números seja uma linha só no globals.css.
  */
-export function Valor({ centavos, sinal = "", destaque = false, className = "" }: Props) {
-  const texto = formatarCentavos(centavos);
+export function Valor({ centavos, sinal: sinalPedido = "", destaque = false, className = "" }: Props) {
+  // Negativo sem sinal pedido vira "−" na frente (o mesmo traço dos gastos), não o "-" do Intl.
+  const sinal = centavos < 0 && !sinalPedido ? "−" : sinalPedido;
+  const texto = formatarCentavos(Math.abs(centavos));
   const lido = sinal === "−" ? "saiu " : sinal === "+" ? "entrou " : "";
 
   if (!destaque) {
