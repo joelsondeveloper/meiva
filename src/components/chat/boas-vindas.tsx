@@ -1,28 +1,22 @@
-export const EXEMPLOS = [
-  "vendi 3 blusas a 50 no pix",
-  "paguei 120 de fornecedor",
-  "a Marta levou 2 blusas fiado",
-] as const;
+/** Frases de exemplo da conversa vazia: venda, gasto e recebimento. */
+export const EXEMPLOS = ["Vendi 50 reais de pudim", "Paguei 30 de luz", "Fulano me pagou"] as const;
 
-/** Tela inicial da conversa vazia. Tocar num exemplo só preenche o campo (não envia). */
+/** Conversa vazia. Tocar num exemplo só preenche o campo (dá para editar antes de enviar). */
 export function BoasVindas({ onEscolher }: { onEscolher: (frase: string) => void }) {
   return (
-    <section aria-labelledby="boas-vindas-titulo" className="flex flex-col gap-4 py-4">
-      <h2 id="boas-vindas-titulo" className="text-2xl font-bold">
-        Olá! O que aconteceu no caixa hoje?
-      </h2>
-      <p className="text-lg">
-        Escreva do seu jeito, como numa conversa. Eu anoto as vendas e os gastos para você.
+    <section aria-labelledby="boas-vindas-titulo" className="flex flex-col gap-6 py-2">
+      <p className="max-w-prose text-lg">
+        Escreva do seu jeito, como numa conversa. Eu anoto vendas, gastos, fiados e pagamentos.
       </p>
       <div className="flex flex-col gap-3">
-        <p className="font-semibold text-texto-suave">Toque num exemplo para começar:</p>
-        <ul className="flex flex-col gap-3">
+        <h2 id="boas-vindas-titulo" className="text-lg font-bold">Experimente uma destas:</h2>
+        <ul className="flex flex-col gap-3 sm:max-w-md">
           {EXEMPLOS.map((frase) => (
             <li key={frase}>
               <button
                 type="button"
                 onClick={() => onEscolher(frase)}
-                className="min-h-12 w-full rounded-xl border border-borda-forte bg-superficie px-4 py-3 text-left text-lg hover:bg-fundo"
+                className="flex min-h-14 w-full items-center rounded-2xl border border-borda-forte bg-superficie px-5 text-left text-lg transition-[background-color,scale] duration-150 hover:bg-primaria-suave active:scale-[0.98]"
               >
                 “{frase}”
               </button>

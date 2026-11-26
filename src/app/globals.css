@@ -1,77 +1,88 @@
 @import "tailwindcss";
 
 /*
- * Design tokens da MEIva: TODA cor do app sai daqui.
+ * Design tokens da MEIva (paleta A, "Petróleo e Âmbar"): TODA cor do app sai daqui.
+ * Decisões e regras de uso: docs/design-system.md.
  *
- * Para trocar a paleta da marca, mude só os valores --cor-* abaixo (tema
- * claro e tema escuro). Os componentes usam apenas as classes semânticas
- * geradas pelo @theme (bg-fundo, bg-superficie, text-texto, text-texto-suave,
- * border-borda, bg-primaria, text-entrada, text-saida, text-aviso, text-erro…)
- * e nunca cores fixas. A paleta padrão do Tailwind está desligada, então uma
- * classe como bg-zinc-50 nem gera CSS.
+ * - primaria (petróleo): marca, navegação, links e seleção. Confiança e calma.
+ * - acento (âmbar): SÓ o botão principal de cada tela e pontos de atenção.
+ * - entrada (verde), saida (tijolo), fiado (azul): semânticas, sempre junto de
+ *   ícone, sinal ou texto, nunca só pela cor.
  *
- * tests/tema.test.ts confere o contraste WCAG AA de cada par usado na tela:
- * texto 4.5:1 e bordas de campo/foco 3:1. Rode `npm test` depois de trocar.
+ * Os componentes usam só as classes geradas pelo @theme (bg-fundo, text-texto,
+ * bg-acento, text-entrada…). A paleta padrão do Tailwind está desligada.
+ *
+ * tests/tema.test.ts confere o contraste WCAG de cada par usado na tela
+ * (texto principal 7:1, demais textos 4.5:1, contornos e foco 3:1) e barra
+ * cor fixa nos componentes. Rode `npm test` depois de mudar qualquer valor.
  *
  * Única cópia fora daqui: a cor da barra do navegador (meta theme-color, em
- * src/app/layout.tsx) repete --cor-superficie, porque meta tag não lê CSS.
- * O mesmo teste avisa se as duas divergirem.
+ * src/app/layout.tsx) repete --cor-superficie.
  */
 
 :root {
   color-scheme: light;
 
-  /* Base */
-  --cor-fundo: #fafafa;
-  --cor-superficie: #ffffff;
-  --cor-texto: #18181b;
-  --cor-texto-suave: #52525b;
-  /* Divisórias e contorno de cartões (decorativo) */
-  --cor-borda: #e4e4e7;
-  /* Contorno de campos de formulário (precisa de 3:1) */
-  --cor-borda-forte: #71717a;
+  --cor-fundo: #f6f5f1;
+  --cor-superficie: #fdfcf9;
+  --cor-texto: #1b2422;
+  --cor-texto-suave: #4a5552;
+  /* Divisórias (decorativas) */
+  --cor-borda: #e2e0d9;
+  /* Contorno de campos e botões secundários (precisa de 3:1) */
+  --cor-borda-forte: #7a8380;
 
-  /* Ação principal (botões) */
-  --cor-primaria: #047857;
-  --cor-primaria-forte: #065f46;
+  --cor-primaria: #0d5c57;
+  --cor-primaria-forte: #0a4a46;
+  --cor-primaria-suave: #e3efed;
   --cor-sobre-primaria: #ffffff;
-  --cor-foco: #047857;
 
-  /* Semânticas: a cor base serve para texto/ícone; a -suave, para fundo de aviso */
-  --cor-entrada: #047857;
-  --cor-entrada-suave: #ecfdf5;
-  --cor-saida: #b91c1c;
-  --cor-saida-suave: #fef2f2;
-  --cor-aviso: #b45309;
-  --cor-aviso-suave: #fffbeb;
-  --cor-erro: #b91c1c;
-  --cor-erro-suave: #fef2f2;
+  --cor-acento: #f2b134;
+  --cor-acento-forte: #e09a14;
+  --cor-sobre-acento: #1b2422;
+
+  --cor-foco: #0d5c57;
+
+  --cor-entrada: #1d7343;
+  --cor-entrada-suave: #e6f3ea;
+  --cor-saida: #b0382a;
+  --cor-saida-suave: #faeae6;
+  --cor-fiado: #2d5b9a;
+  --cor-fiado-suave: #e8eef8;
+  --cor-erro: #b0382a;
+  --cor-erro-suave: #faeae6;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
 
-    --cor-fundo: #000000;
-    --cor-superficie: #18181b;
-    --cor-texto: #f4f4f5;
-    --cor-texto-suave: #a1a1aa;
-    --cor-borda: #27272a;
-    --cor-borda-forte: #71717a;
+    --cor-fundo: #131a19;
+    --cor-superficie: #1b2422;
+    --cor-texto: #edf0ee;
+    --cor-texto-suave: #a9b4b0;
+    --cor-borda: #2c3735;
+    --cor-borda-forte: #748380;
 
-    --cor-primaria: #047857;
-    --cor-primaria-forte: #065f46;
-    --cor-sobre-primaria: #ffffff;
-    --cor-foco: #34d399;
+    --cor-primaria: #5cc2b7;
+    --cor-primaria-forte: #7fd3c9;
+    --cor-primaria-suave: #17302d;
+    --cor-sobre-primaria: #0c1514;
 
-    --cor-entrada: #34d399;
-    --cor-entrada-suave: #022c22;
-    --cor-saida: #f87171;
-    --cor-saida-suave: #450a0a;
-    --cor-aviso: #fbbf24;
-    --cor-aviso-suave: #451a03;
-    --cor-erro: #f87171;
-    --cor-erro-suave: #450a0a;
+    --cor-acento: #f2b134;
+    --cor-acento-forte: #f6c45e;
+    --cor-sobre-acento: #1b2422;
+
+    --cor-foco: #5cc2b7;
+
+    --cor-entrada: #63c98d;
+    --cor-entrada-suave: #15291e;
+    --cor-saida: #f2907f;
+    --cor-saida-suave: #341b17;
+    --cor-fiado: #8fb5ee;
+    --cor-fiado-suave: #18243a;
+    --cor-erro: #f2907f;
+    --cor-erro-suave: #341b17;
   }
 }
 
@@ -87,36 +98,82 @@
   --color-borda-forte: var(--cor-borda-forte);
   --color-primaria: var(--cor-primaria);
   --color-primaria-forte: var(--cor-primaria-forte);
+  --color-primaria-suave: var(--cor-primaria-suave);
   --color-sobre-primaria: var(--cor-sobre-primaria);
+  --color-acento: var(--cor-acento);
+  --color-acento-forte: var(--cor-acento-forte);
+  --color-sobre-acento: var(--cor-sobre-acento);
   --color-foco: var(--cor-foco);
   --color-entrada: var(--cor-entrada);
   --color-entrada-suave: var(--cor-entrada-suave);
   --color-saida: var(--cor-saida);
   --color-saida-suave: var(--cor-saida-suave);
-  --color-aviso: var(--cor-aviso);
-  --color-aviso-suave: var(--cor-aviso-suave);
+  --color-fiado: var(--cor-fiado);
+  --color-fiado-suave: var(--cor-fiado-suave);
   --color-erro: var(--cor-erro);
   --color-erro-suave: var(--cor-erro-suave);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
 }
 
 /*
- * Acessibilidade (público mais velho, só no celular):
- * - texto de no mínimo 16px: text-xs e text-sm não existem neste projeto;
- * - line-height de no mínimo 1.4, inclusive nos títulos grandes.
- * Os componentes ainda garantem áreas de toque de 44x44px (min-h-11 / min-h-12).
+ * Tipografia (público mais velho, quase sempre no celular):
+ * - corpo de 18px (text-base) com entrelinha 1.55; nada abaixo de 16px
+ *   (text-xs e text-sm não existem neste projeto);
+ * - títulos com entrelinha de pelo menos 1.25 e o número grande do saldo com 1.15.
  */
 @theme {
   --text-xs: initial;
   --text-sm: initial;
+  --text-base: 1.125rem;
+  --text-base--line-height: 1.55;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.5;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.45;
+  --text-2xl: 1.625rem;
   --text-2xl--line-height: 1.4;
-  --text-3xl--line-height: 1.4;
-  --text-4xl--line-height: 1.4;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 1.25;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 1.2;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1.15;
+
+  /* Movimento: curto, só em resposta a uma ação (ver docs/design-system.md). */
+  --ease-saida: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-entrar: entrar 180ms var(--ease-saida);
+
+  @keyframes entrar {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
 }
 
 @layer base {
+  :root {
+    /* Altura da barra de abas do celular (some no desktop e com o teclado aberto). */
+    --altura-abas: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 64rem) {
+    :root {
+      --altura-abas: 0px;
+    }
+  }
+
+  /* Teclado aberto no celular: a barra de abas sai para o campo ganhar espaço. */
+  @media (max-width: 63.99rem) {
+    :root:has(textarea:focus) {
+      --altura-abas: 0px;
+    }
+    :root:has(textarea:focus) [data-abas] {
+      display: none;
+    }
+  }
+
   html {
     /* Não deixa o iOS/Android mexer no tamanho da fonte sozinho ao girar a tela. */
     -webkit-text-size-adjust: 100%;
@@ -126,14 +183,23 @@
   body {
     background: var(--cor-fundo);
     color: var(--cor-texto);
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 1rem;
-    line-height: 1.5;
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.55;
   }
 
   /* Foco sempre visível ao navegar por teclado (e em campos de texto). */
   :focus-visible {
     outline: 3px solid var(--cor-foco);
     outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

@@ -16,19 +16,30 @@ describe("categoriaDo e sinalDo", () => {
     [l("recebimento_fiado", "entrada", "dinheiro", "Marta"), "entrada", "+"],
     [l("despesa", "saida", "pix"), "saida", "−"],
     [l("despesa", "saida", "fiado"), "saida", "−"],
-    [l("venda", "entrada", "fiado", "Marta"), "fiado", "+"],
     [l("aporte", "entrada", "dinheiro"), "aporte", "+"],
     [l("retirada_pessoal", "saida", "pix"), "retirada", "−"],
   ] as const)("%o → %s %s", (lancamento, categoria, sinal) => {
     expect(categoriaDo(lancamento)).toBe(categoria);
     expect(sinalDo(lancamento)).toBe(sinal);
   });
+
+  test("fiado não tem sinal: ainda não entrou no caixa", () => {
+    const fiado = l("venda", "entrada", "fiado", "Marta");
+    expect(categoriaDo(fiado)).toBe("fiado");
+    expect(sinalDo(fiado)).toBe("");
+  });
 });
 
 describe("rotuloDoLancamento", () => {
-  test("natureza e forma", () => {
-    expect(rotuloDoLancamento(l("venda", "entrada", "pix"))).toBe("Venda · Pix");
-    expect(rotuloDoLancamento(l("aporte", "entrada", "dinheiro"))).toBe("Caixa inicial · Dinheiro");
+  test.each([
+    [l("venda", "entrada", "pix"), "Venda no Pix"],
+    [l("despesa", "saida", "dinheiro"), "Gasto no dinheiro"],
+    [l("despesa", "saida", "fiado"), "Gasto a prazo"],
+    [l("aporte", "entrada", "dinheiro"), "Caixa inicial no dinheiro"],
+    [l("venda", "entrada", "cartao"), "Venda no cartão"],
+    [l("venda", "entrada", "outro"), "Venda por outra forma"],
+  ] as const)("%o → %s", (lancamento, rotulo) => {
+    expect(rotuloDoLancamento(lancamento)).toBe(rotulo);
   });
 
   test("sem forma de pagamento não mostra nada no lugar", () => {
@@ -37,10 +48,11 @@ describe("rotuloDoLancamento", () => {
     expect(rotulo).not.toMatch(/informad/i);
   });
 
-  test("fiado mostra a pessoa e que é a receber", () => {
-    expect(rotuloDoLancamento(l("venda", "entrada", "fiado", "Marta"))).toBe("Fiado (a receber) · Marta");
+  test("fiado e recebimento citam a pessoa", () => {
+    expect(rotuloDoLancamento(l("venda", "entrada", "fiado", "Marta"))).toBe("Fiado para Marta");
+    expect(rotuloDoLancamento(l("venda", "entrada", "fiado"))).toBe("Fiado");
     expect(rotuloDoLancamento(l("recebimento_fiado", "entrada", "pix", "Marta"))).toBe(
-      "Recebeu fiado · Pix · Marta",
+      "Recebimento de Marta, no Pix",
     );
   });
 });

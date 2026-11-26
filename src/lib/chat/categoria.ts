@@ -1,12 +1,11 @@
-import { rotuloForma } from "@/lib/formatacao";
 import type { LancamentoSalvo } from "@/lib/lancamentos/tipos";
 
 /**
- * Como um lançamento aparece na tela. Cada categoria tem sinal, ícone e
- * rótulo próprios (nunca só a cor):
+ * Como um lançamento aparece na tela. Cada categoria tem ícone e rótulo
+ * próprios (nunca só a cor):
  *  - entrada: venda à vista ou recebimento de fiado
- *  - saida: despesa
- *  - fiado: venda fiado (ainda não entrou no caixa)
+ *  - saida: gasto
+ *  - fiado: venda fiado (ainda não entrou no caixa; aparece com o selo "a receber")
  *  - aporte: caixa inicial / dinheiro do dono colocado no caixa
  *  - retirada: retirada pessoal do dono
  */
@@ -21,26 +20,44 @@ export function categoriaDo(l: ParaCategoria): Categoria {
   return l.tipo === "saida" ? "saida" : "entrada";
 }
 
-/** Sinal pelo sentido do dinheiro (o fiado é + porque é a receber). */
-export const sinalDo = (l: Pick<LancamentoSalvo, "tipo">): "+" | "−" => (l.tipo === "saida" ? "−" : "+");
+/**
+ * Sinal pelo sentido do dinheiro no caixa. Fiado não tem sinal: ainda não
+ * entrou no caixa, e a tela mostra o selo "a receber" no lugar.
+ */
+export function sinalDo(l: ParaCategoria): "+" | "−" | "" {
+  if (categoriaDo(l) === "fiado") return "";
+  return l.tipo === "saida" ? "−" : "+";
+}
 
-const ROTULO_NATUREZA: Record<LancamentoSalvo["natureza"], string> = {
+const ROTULO: Record<LancamentoSalvo["natureza"], string> = {
   venda: "Venda",
-  despesa: "Despesa",
-  recebimento_fiado: "Recebeu fiado",
+  despesa: "Gasto",
+  recebimento_fiado: "Recebimento",
   aporte: "Caixa inicial",
   retirada_pessoal: "Retirada pessoal",
 };
 
 /**
- * Linha de apoio: natureza, forma e pessoa, separadas por " · ".
+ * Linha de apoio em português simples, ex.: "Venda no Pix", "Fiado para Marta",
+ * "Recebimento de Marta, no dinheiro", "Gasto a prazo".
  * Sem forma de pagamento, nada aparece no lugar.
  */
 export function rotuloDoLancamento(l: ParaCategoria & Pick<LancamentoSalvo, "pessoa">): string {
-  const partes =
-    categoriaDo(l) === "fiado"
-      ? ["Fiado (a receber)"]
-      : [ROTULO_NATUREZA[l.natureza], l.forma_pagamento ? rotuloForma(l.forma_pagamento) : null];
-  if (l.pessoa) partes.push(l.pessoa);
-  return partes.filter(Boolean).join(" · ");
+  const pessoa = l.pessoa?.trim();
+  if (categoriaDo(l) === "fiado") return pessoa ? `Fiado para ${pessoa}` : "Fiado";
+
+  let base = ROTULO[l.natureza];
+  if (l.natureza === "recebimento_fiado" && pessoa) base += ` de ${pessoa}`;
+
+  if (!l.forma_pagamento) return base;
+  const separador = l.natureza === "recebimento_fiado" && pessoa ? ", " : " ";
+  return `${base}${separador}${COMO_PAGOU[l.forma_pagamento]}`;
 }
+
+const COMO_PAGOU: Record<NonNullable<LancamentoSalvo["forma_pagamento"]>, string> = {
+  pix: "no Pix",
+  dinheiro: "no dinheiro",
+  cartao: "no cartão",
+  fiado: "a prazo",
+  outro: "por outra forma",
+};
