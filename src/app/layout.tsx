@@ -19,8 +19,14 @@ export const metadata: Metadata = {
     template: "%s · MEIva",
   },
   description:
-    "Anote vendas, gastos e fiado escrevendo do seu jeito, como no WhatsApp. A MEIva organiza o caixa do seu MEI.",
+    "Anote vendas, gastos e fiado escrevendo do seu jeito, como numa conversa. A MEIva organiza o caixa do seu MEI.",
   applicationName: "MEIva",
+  openGraph: {
+    title: "MEIva: o caixa da sua loja numa conversa",
+    description: "Anote vendas, gastos e fiado escrevendo do seu jeito. A MEIva organiza o caixa do seu MEI.",
+    locale: "pt_BR",
+    type: "website",
+  },
   formatDetection: { telephone: false },
 };
 
