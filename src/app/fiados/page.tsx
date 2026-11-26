@@ -130,7 +130,7 @@ function DetalhePessoa({ devedor: d }: { devedor: Devedor }) {
   const porData = Map.groupBy(d.historico, (l) => l.data);
 
   return (
-    <section aria-labelledby="pessoa-titulo" className="flex flex-col gap-8 motion-safe:animate-entrar">
+    <section aria-labelledby="pessoa-titulo" className="flex flex-col gap-8 animate-entrar">
       <Link
         href="/fiados"
         scroll={false}

@@ -214,9 +214,11 @@ function Barra({
         </dd>
       </div>
       <div className="h-3 overflow-hidden rounded-full bg-borda" aria-hidden="true">
+        {/* Escala em vez de largura: anima só transform (mais leve) ao trocar o período. */}
         <div
-          className={`h-full rounded-full ${cor} motion-safe:transition-[width] motion-safe:duration-300`}
-          style={{ width: `${Math.round(proporcao * 100)}%` }}
+          data-sem-movimento-reduzido
+          className={`h-full origin-left rounded-full ${cor} transition-[scale] duration-[250ms] ease-[var(--ease-movimento)]`}
+          style={{ scale: `${Math.round(proporcao * 1000) / 1000} 1` }}
         />
       </div>
     </div>

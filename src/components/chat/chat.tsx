@@ -201,7 +201,7 @@ export function Chat() {
             <div role="log" aria-label="Conversa">
               <ol className="flex flex-col gap-5">
                 {mensagens.map((m) => (
-                  <li key={m.id} className="flex motion-safe:animate-entrar">
+                  <li key={m.id} className="flex animate-entrar">
                     <BolhaMensagem
                       mensagem={m}
                       desfazendo={desfazendo}
@@ -211,7 +211,7 @@ export function Chat() {
                   </li>
                 ))}
                 {anotando && (
-                  <li className="flex motion-safe:animate-entrar">
+                  <li className="flex animate-entrar">
                     <BolhaAnotando />
                   </li>
                 )}

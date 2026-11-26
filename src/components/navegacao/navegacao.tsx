@@ -70,6 +70,7 @@ export function Navegacao() {
                 <Link
                   href={href}
                   aria-current={atual ? "page" : undefined}
+                  data-sem-movimento-reduzido
                   className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 text-base transition-[color,scale] duration-150 active:scale-[0.97] before:absolute before:inset-x-5 before:top-0 before:h-[3px] before:rounded-b-full before:bg-primaria before:transition-transform before:duration-200 before:ease-[var(--ease-saida)] ${
                     atual ? "font-bold text-primaria before:scale-x-100" : "text-texto-suave before:scale-x-0"
                   }`}

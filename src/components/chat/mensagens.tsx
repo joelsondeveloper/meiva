@@ -117,10 +117,11 @@ function Comprovante({
         <span>{quantos}</span>
       </p>
       <ul className="divide-y divide-borda px-4">
-        {lancamentos.map((l) => {
+        {lancamentos.map((l, i) => {
           const desfeito = desfeitos.includes(l.id);
           return (
-            <li key={l.id} className="motion-safe:animate-entrar">
+            // As linhas chegam uma depois da outra (50ms), logo depois do comprovante.
+            <li key={l.id} className="animate-entrar" style={{ animationDelay: `${80 + i * 50}ms` }}>
               <LinhaLancamento
                 lancamento={l}
                 riscado={desfeito}

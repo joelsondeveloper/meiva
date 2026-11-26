@@ -191,8 +191,17 @@
   --text-5xl--line-height: 1.15;
 
   /* Movimento: curto, só em resposta a uma ação (ver docs/design-system.md). */
+  /* ease-out forte para o que entra; ease-in-out para o que muda de tamanho na tela. */
   --ease-saida: cubic-bezier(0.22, 1, 0.36, 1);
-  --animate-entrar: entrar 180ms var(--ease-saida);
+  --ease-movimento: cubic-bezier(0.65, 0, 0.35, 1);
+  --animate-entrar: entrar 180ms var(--ease-saida) both;
+  --animate-aparecer: aparecer 180ms ease both;
+
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+    }
+  }
 
   @keyframes entrar {
     from {
@@ -276,12 +285,27 @@
     outline-offset: 2px;
   }
 
+  /*
+   * Movimento reduzido: menos movimento, não zero. Sai tudo que desloca ou
+   * muda de tamanho (subir, escalar, barras crescendo); ficam as trocas de
+   * cor e de opacidade, que explicam o que mudou (ex.: a linha que fica
+   * cinza e riscada no Desfazer).
+   */
   @media (prefers-reduced-motion: reduce) {
+    :root {
+      --animate-entrar: aparecer 180ms ease both;
+    }
     *,
     *::before,
     *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    *:active {
+      scale: none !important;
+    }
+    [data-sem-movimento-reduzido],
+    [data-sem-movimento-reduzido]::before {
+      transition-property: color, background-color, border-color, opacity !important;
     }
   }
 }
