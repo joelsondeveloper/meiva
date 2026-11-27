@@ -57,3 +57,36 @@ Registro de cada rodada: o que mudou e por quê. Pesquisa de concorrentes em [pe
 ## Marca e registro
 
 Não afirmo que "MEIva" está livre ou é registrável. **Antes de usar publicamente: consultar o INPI** (classes 9, 35, 36 e 42) **e a disponibilidade do domínio.**
+
+## Exploração 2 (27/11/2026)
+
+Escolha da rodada 1: **B1 (nome) + G (ícone)**, com **F** como curinga. B2, C, D e E foram descartadas. Folha de contato em `exploracao-2/folha-de-contato.png`, prévia em `exploracao-2/previa.html` e gerador em `exploracao-2/gerar.py`.
+
+### O que mudou e por quê
+
+- **M redesenhado (vale para nome e ícone).** As diagonais agora têm 60° exatos, em vez dos 58,4°/121,9° da Lexend. A largura horizontal da diagonal é 165 / sen 60° = 190, então a espessura real fica igual à da haste (165). A caixa é a mesma do M da Lexend 700 (702 de largura, vértice em −170) e o desenho é um contorno só, o que permite vazá-lo como furo. A auditoria não aponta mais ângulo torto.
+- **Furos de verdade.** O M dos ícones G1/G2 e a linha escrita do F são furos (`fill-rule="evenodd"`), não forma pintada por cima. Sobre qualquer fundo aparece o fundo. A auditoria não aponta mais recorte pintado.
+- **Peso óptico do cursor.** Com a mesma largura da haste do E (165), o cursor âmbar-tinta parece mais fino que as letras petróleo, porque é mais claro. Testei 165, 180 e 195 lado a lado: **180 (+9%)** iguala o peso no claro e continua equilibrado no petróleo. O 195 já pesa mais.
+- **Teste "MElva".** O "l" minúsculo da Lexend sobe até 740; o cursor para na altura das maiúsculas (700). O "l" de 400 tem haste de 103; o cursor tem 180, o peso de "MEI". Comparei com um "MElva" montado com o "l" de verdade (400 e 700). **Conclusão honesta:** em 18 px e em cinza, o cursor e um "l" da Lexend 700 quase não se distinguem. A leitura "MEIva" se apoia no contexto ("MEI" é palavra conhecida), no peso igual ao de "ME" e na cor. A haste larga (215) reduz um pouco o risco, mas pesa mais que as letras. Nenhuma versão elimina o risco; é o mesmo I/l de qualquer fonte sem serifa.
+- **Duas cores de cursor no fundo claro.** Âmbar-tinta `#8f5d00` (5,1:1 no papel, mais folga que o `#9a6400` da rodada 1) e âmbar-cobre `#a55300` (5,0:1). O cobre puxa para o laranja, vira "terceira cor" e no tritan fica vermelho-rosado. Recomendo o âmbar-tinta.
+- **Âmbar sobre petróleo.** O `#f2b134` dava 4,1:1 no petróleo. Passei a usar o âmbar-claro `#f5c04f` (4,7:1) no cursor e nos ícones sobre petróleo, e com isso não há mais exceção de contraste. O `#f2b134` continua no botão e no fundo escuro (9,3:1).
+- **G: quatro tamanhos e posições do bloco, sempre sobre petróleo.** G1 bloco grande (o da rodada 1), G2 bloco justo, G3 cursor sublinhado (M claro e traço âmbar embaixo) e G4 cursor vazado (contorno âmbar). Quanto menos área âmbar, mais longe dos ícones de fundo amarelo; G3 é o que menos lembra.
+- **F: duas versões.** F1 com V no alto e F2 com o topo em M pontudo, ambas com picote, furo na linha e cursor âmbar. O F1 ainda lembra envelope; o F2 lembra casinha ou coroa.
+
+### Bateria rodada
+
+- 16, 24, 32, 48 e 64 px, favicon em 16 e 32, máscara redonda e zona segura.
+- Preto, negativo, escala de cinza e daltonismo (protanopia, deuteranopia e tritanopia). A simulação usa as matrizes de Machado et al. 2009 em RGB linear; é aproximação de tela e não substitui teste com pessoas.
+- Contraste de todos os pares (seção 8 da prévia).
+- Simulações da lateral do computador (claro e escuro), do topo do celular, da aba do navegador com o favicon real em 16 px e da tela inicial com ícones genéricos.
+- O teste dos 5 segundos está descrito como **previsão minha**, não teste com pessoas.
+
+### Recomendação da rodada 2
+
+Nome **B1 · haste 180 em âmbar-tinta** + ícone **G3 · sublinhado**. Segunda opção de ícone: G2 (bloco justo). Arquivar o F.
+
+### Ainda não feito
+
+- Teste com pessoas reais (5 segundos, idosos).
+- A lateral simulada usa a fonte do sistema, não a Atkinson.
+- O cursor animado fica para a Fase 4.
