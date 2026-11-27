@@ -1,30 +1,37 @@
 import type { ReactNode } from "react";
 import { categoriaDo, rotuloDoLancamento, sinalDo, type Categoria } from "@/lib/chat/categoria";
-import { formatarCentavos } from "@/lib/formatacao";
 import type { LancamentoSalvo } from "@/lib/lancamentos/tipos";
 import { IconeAporte, IconeEntrada, IconeFiado, IconeRetirada, IconeSaida } from "@/components/icones";
+import { Valor } from "@/components/valor";
 
-type Visual = { cor: string; fundo: string; Icone: typeof IconeEntrada };
+type Visual = { cor: string; Icone: typeof IconeEntrada };
 
-/** Cor, fundo do ícone e ícone por categoria. A cor nunca vem sozinha: sempre ícone + rótulo (+ sinal). */
+/** Cor e ícone por categoria. A cor nunca vem sozinha: sempre ícone + rótulo (+ sinal ou selo). */
 const VISUAL: Record<Categoria, Visual> = {
-  entrada: { cor: "text-entrada", fundo: "bg-entrada-suave", Icone: IconeEntrada },
-  saida: { cor: "text-saida", fundo: "bg-saida-suave", Icone: IconeSaida },
-  fiado: { cor: "text-fiado", fundo: "bg-fiado-suave", Icone: IconeFiado },
-  aporte: { cor: "text-entrada", fundo: "bg-entrada-suave", Icone: IconeAporte },
-  retirada: { cor: "text-saida", fundo: "bg-saida-suave", Icone: IconeRetirada },
+  entrada: { cor: "text-entrada", Icone: IconeEntrada },
+  saida: { cor: "text-saida", Icone: IconeSaida },
+  fiado: { cor: "text-fiado", Icone: IconeFiado },
+  aporte: { cor: "text-entrada", Icone: IconeAporte },
+  retirada: { cor: "text-saida", Icone: IconeRetirada },
 };
 
-/** Selo "a receber" do fiado (no lugar do sinal +). */
+/**
+ * Selo "a receber" do fiado (no lugar do sinal +). Tem contorno, além do
+ * fundo: no tema escuro o fundo azul quase some sobre a superfície, e o
+ * contorno mantém a forma de etiqueta.
+ */
 export function SeloAReceber() {
   return (
-    <span className="inline-flex items-center rounded-md bg-fiado-suave px-2 font-bold text-fiado">a receber</span>
+    <span className="inline-flex items-center rounded-selo border border-fiado bg-fiado-suave px-2 font-bold whitespace-nowrap text-fiado">
+      a receber
+    </span>
   );
 }
 
 /**
  * Uma linha de lançamento: ícone, o que foi e como, e o valor à direita.
- * `riscado` mostra o estado "Desfeito"; `acao` é um botão opcional (Desfazer).
+ * `riscado` mostra o estado "Desfeito"; `acao` é um botão opcional (Desfazer),
+ * que fica embaixo do valor.
  */
 export function LinhaLancamento({
   lancamento: l,
@@ -36,33 +43,26 @@ export function LinhaLancamento({
   acao?: ReactNode;
 }) {
   const categoria = categoriaDo(l);
-  const { cor, fundo, Icone } = VISUAL[categoria];
-  const sinal = sinalDo(l);
+  const { cor, Icone } = VISUAL[categoria];
 
   return (
-    <div className="flex items-center gap-3 py-2">
-      <span
-        className={`flex size-10 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${
-          riscado ? "bg-fundo text-texto-suave" : `${fundo} ${cor}`
-        }`}
-      >
-        <Icone className="size-5" />
+    <div className="flex items-start gap-3 py-3">
+      <span className={`mt-0.5 transition-colors duration-200 ${riscado ? "text-texto-suave" : cor}`}>
+        <Icone className="size-6" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className={`break-words font-bold ${riscado ? "text-texto-suave line-through" : ""}`}>{l.descricao}</p>
-        <p className="text-texto-suave">{riscado ? "Desfeito" : rotuloDoLancamento(l)}</p>
+        <p className={`font-bold break-words ${riscado ? "text-texto-suave line-through" : ""}`}>{l.descricao}</p>
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-texto-suave">
+          {riscado ? "Desfeito" : rotuloDoLancamento(l)}
+          {categoria === "fiado" && !riscado && <SeloAReceber />}
+        </p>
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-1">
-        <span
-          className={`text-lg font-bold tabular-nums transition-colors duration-200 ${
-            riscado ? "text-texto-suave line-through" : cor
-          }`}
-        >
-          {sinal && <span aria-hidden="true">{sinal}</span>}
-          <span className="sr-only">{sinal === "−" ? "saiu " : sinal === "+" ? "entrou " : ""}</span>
-          {formatarCentavos(l.valor_centavos)}
-        </span>
-        {categoria === "fiado" && !riscado && <SeloAReceber />}
+      <div className="flex shrink-0 flex-col items-end">
+        <Valor
+          centavos={l.valor_centavos}
+          sinal={sinalDo(l)}
+          className={`text-lg font-bold transition-colors duration-200 ${riscado ? "text-texto-suave line-through" : cor}`}
+        />
         {acao}
       </div>
     </div>

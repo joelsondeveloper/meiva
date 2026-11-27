@@ -40,6 +40,7 @@ const TOKENS = [
   "fundo", "superficie", "texto", "texto-suave", "borda", "borda-forte",
   "primaria", "primaria-forte", "primaria-suave", "sobre-primaria",
   "acento", "acento-forte", "sobre-acento", "foco",
+  "heroi", "sobre-heroi", "heroi-suave",
   "entrada", "entrada-suave", "saida", "saida-suave",
   "fiado", "fiado-suave", "erro", "erro-suave",
 ];
@@ -49,6 +50,8 @@ const PARES_TEXTO_PRINCIPAL: [string, string][] = [
   ["texto", "fundo"],
   ["texto", "superficie"],
   ...["primaria", "entrada", "saida", "fiado", "erro"].map((s): [string, string] => ["texto", `${s}-suave`]),
+  // O saldo grande do Resumo fica sobre o bloco herói.
+  ["sobre-heroi", "heroi"],
 ];
 
 /** [frente, fundo] dos demais textos que aparecem na tela: 4.5:1. */
@@ -61,6 +64,7 @@ const PARES_TEXTO: [string, string][] = [
   ["sobre-acento", "acento"],
   ["sobre-acento", "acento-forte"],
   ["primaria", "primaria-suave"],
+  ["heroi-suave", "heroi"],
   ["texto-suave", "primaria-suave"],
   ...["entrada", "saida", "fiado", "erro"].flatMap((s): [string, string][] => [
     [s, `${s}-suave`],
@@ -75,6 +79,9 @@ const PARES_NAO_TEXTO: [string, string][] = [
   ["foco", "fundo"],
   ["foco", "superficie"],
   ["foco", "primaria-suave"],
+  // Botão âmbar ao lado do bloco herói, e o selo "a receber" (contorno) sobre a superfície.
+  ["acento", "heroi"],
+  ["fiado", "superficie"],
 ];
 
 describe.each(Object.entries(TEMAS))("tokens do tema %s", (_tema, cores) => {
@@ -159,5 +166,27 @@ describe("componentes sem cor fixa", () => {
       claro: TEMAS.claro.superficie,
       escuro: TEMAS.escuro.superficie,
     });
+  });
+});
+
+describe("fonte dos valores em reais", () => {
+  const layout = readFileSync(LAYOUT, "utf8");
+  const valor = readFileSync(join(RAIZ, "src/components/valor.tsx"), "utf8");
+
+  test("--fonte-valor usa a Lexend (zero sem corte) e cai para a fonte do texto", () => {
+    expect(css).toMatch(/--fonte-valor:\s*var\(--font-lexend\),\s*var\(--font-sans\);/);
+  });
+
+  test("o layout carrega a Lexend na variável --font-lexend e a aplica no <html>", () => {
+    expect(layout).toMatch(/Lexend\(\{[\s\S]*?variable:\s*"--font-lexend"/);
+    expect(layout).toMatch(/\$\{lexend\.variable\}/);
+  });
+
+  test("a Atkinson continua sendo a fonte do texto", () => {
+    expect(css).toMatch(/--font-sans:\s*var\(--font-atkinson\)/);
+  });
+
+  test("<Valor> aplica a classe valor", () => {
+    expect(valor).toMatch(/className=\{`valor /);
   });
 });

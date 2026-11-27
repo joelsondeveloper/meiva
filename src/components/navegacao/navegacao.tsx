@@ -42,7 +42,7 @@ export function Navegacao() {
                 <Link
                   href={href}
                   aria-current={atual ? "page" : undefined}
-                  className={`flex min-h-12 items-center gap-3 rounded-2xl px-4 text-lg transition-colors duration-150 ${
+                  className={`flex min-h-12 items-center gap-3 rounded-controle px-4 text-lg transition-colors duration-150 ${
                     atual
                       ? "bg-primaria-suave font-bold text-primaria"
                       : "text-texto-suave hover:bg-fundo hover:text-texto"
@@ -62,7 +62,7 @@ export function Navegacao() {
         data-abas
         className="fixed inset-x-0 bottom-0 z-20 border-t border-borda bg-superficie pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
-        <ul className="mx-auto grid h-18 max-w-md grid-cols-3 gap-1 px-2">
+        <ul className="mx-auto grid h-18 max-w-md grid-cols-3 px-2">
           {PAGINAS.map(({ href, rotulo, Icone }) => {
             const atual = ativa(pathname, href);
             return (
@@ -70,8 +70,9 @@ export function Navegacao() {
                 <Link
                   href={href}
                   aria-current={atual ? "page" : undefined}
-                  className={`my-1.5 flex flex-1 flex-col items-center justify-center rounded-2xl text-base transition-[color,background-color,scale] duration-150 active:scale-[0.97] ${
-                    atual ? "bg-primaria-suave font-bold text-primaria" : "text-texto-suave"
+                  data-sem-movimento-reduzido
+                  className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 text-base transition-[color,scale] duration-150 active:scale-[0.97] before:absolute before:inset-x-5 before:top-0 before:h-[3px] before:rounded-b-full before:bg-primaria before:transition-transform before:duration-200 before:ease-[var(--ease-saida)] ${
+                    atual ? "font-bold text-primaria before:scale-x-100" : "text-texto-suave before:scale-x-0"
                   }`}
                 >
                   <Icone className="size-6" />

@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { formatarCentavos } from "@/lib/formatacao";
 import type { ResumoCaixa } from "@/lib/lancamentos/saldo";
 import { IconeEntrada, IconeFiado, IconeSaida, IconeSaldo } from "@/components/icones";
 import { SeloAReceber } from "@/components/lancamento/linha";
+import { Valor } from "@/components/valor";
 
 type Props = {
   resumo: ResumoCaixa | null;
@@ -24,7 +24,7 @@ export function PainelCaixa({ resumo, erro, onTentarDeNovo }: Props) {
           <button
             type="button"
             onClick={onTentarDeNovo}
-            className="min-h-12 rounded-2xl border border-borda-forte px-4 font-bold hover:bg-fundo"
+            className="min-h-12 rounded-controle border border-borda-forte px-4 font-bold hover:bg-fundo"
           >
             Tentar de novo
           </button>
@@ -37,30 +37,30 @@ export function PainelCaixa({ resumo, erro, onTentarDeNovo }: Props) {
         <>
           <div>
             <p className="text-texto-suave">Saldo de hoje</p>
-            <p className={`text-4xl font-bold tabular-nums ${resumo.dia.saldo < 0 ? "text-saida" : ""}`}>
-              {formatarCentavos(resumo.dia.saldo)}
+            <p className={`text-4xl font-bold ${resumo.dia.saldo < 0 ? "text-saida" : ""}`}>
+              <Valor centavos={resumo.dia.saldo} destaque />
             </p>
             <p className="text-texto-suave">O que entrou menos o que saiu hoje.</p>
           </div>
 
           <dl className="flex flex-col divide-y divide-borda border-y border-borda">
             <Linha rotulo="Entrou" Icone={IconeEntrada} cor="text-entrada">
-              +{formatarCentavos(resumo.dia.entradas)}
+              <Valor centavos={resumo.dia.entradas} sinal={resumo.dia.entradas > 0 ? "+" : ""} />
             </Linha>
             <Linha rotulo="Saiu" Icone={IconeSaida} cor="text-saida">
-              −{formatarCentavos(resumo.dia.saidas)}
+              <Valor centavos={resumo.dia.saidas} sinal={resumo.dia.saidas > 0 ? "−" : ""} />
             </Linha>
             <Linha rotulo="Dinheiro no caixa" Icone={IconeSaldo} cor="text-texto">
-              {formatarCentavos(resumo.saldoAcumulado)}
+              <Valor centavos={resumo.saldoAcumulado} />
             </Linha>
             <Linha rotulo="Fiados" Icone={IconeFiado} cor="text-fiado" selo>
-              {formatarCentavos(resumo.aReceber.total)}
+              <Valor centavos={resumo.aReceber.total} />
             </Linha>
           </dl>
 
           <Link
             href="/resumo"
-            className="flex min-h-12 items-center justify-center rounded-2xl border border-borda-forte px-4 font-bold hover:bg-fundo"
+            className="flex min-h-12 items-center justify-center rounded-controle border border-borda-forte px-4 font-bold hover:bg-fundo"
           >
             Ver o resumo completo
           </Link>
@@ -91,7 +91,7 @@ function Linha({
         </span>
         {rotulo}
       </dt>
-      <dd className={`flex flex-col items-end font-bold tabular-nums ${cor}`}>
+      <dd className={`flex flex-col items-end gap-1 font-bold ${cor}`}>
         {children}
         {selo && <SeloAReceber />}
       </dd>

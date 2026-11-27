@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Next } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, Lexend } from "next/font/google";
 import { Navegacao } from "@/components/navegacao/navegacao";
 import "./globals.css";
 
@@ -13,14 +13,32 @@ const atkinson = Atkinson_Hyperlegible_Next({
   weight: ["400", "700"],
 });
 
+/**
+ * Lexend só nos valores em reais (--fonte-valor, classe `valor`): o zero sem
+ * corte da Lexend é mais familiar que o zero cortado da Atkinson (escolha do
+ * dono do produto, para testar com pessoas reais). O resto do texto continua
+ * na Atkinson.
+ */
+const lexend = Lexend({
+  variable: "--font-lexend",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
 export const metadata: Metadata = {
   title: {
     default: "MEIva: o caixa da sua loja numa conversa",
     template: "%s · MEIva",
   },
   description:
-    "Anote vendas, gastos e fiado escrevendo do seu jeito, como no WhatsApp. A MEIva organiza o caixa do seu MEI.",
+    "Anote vendas, gastos e fiado escrevendo do seu jeito, como numa conversa. A MEIva organiza o caixa do seu MEI.",
   applicationName: "MEIva",
+  openGraph: {
+    title: "MEIva: o caixa da sua loja numa conversa",
+    description: "Anote vendas, gastos e fiado escrevendo do seu jeito. A MEIva organiza o caixa do seu MEI.",
+    locale: "pt_BR",
+    type: "website",
+  },
   formatDetection: { telephone: false },
 };
 
@@ -30,7 +48,7 @@ export const metadata: Metadata = {
  * se divergir de globals.css.
  */
 const COR_BARRA = {
-  claro: "#fdfcf9",
+  claro: "#fdfdfb",
   escuro: "#1b2422",
 };
 
@@ -50,7 +68,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${atkinson.variable} h-full antialiased`}>
+    <html lang="pt-BR" className={`${atkinson.variable} ${lexend.variable} h-full antialiased`}>
       <body className="min-h-full bg-fundo text-texto">
         <a
           href="#conteudo"

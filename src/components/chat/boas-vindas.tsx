@@ -16,7 +16,7 @@ export function BoasVindas({ onEscolher }: { onEscolher: (frase: string) => void
               <button
                 type="button"
                 onClick={() => onEscolher(frase)}
-                className="flex min-h-14 w-full items-center rounded-2xl border border-borda-forte bg-superficie px-5 text-left text-lg transition-[background-color,scale] duration-150 hover:bg-primaria-suave active:scale-[0.98]"
+                className="flex min-h-14 w-full items-center rounded-controle border border-borda-forte bg-superficie px-5 text-left text-lg transition-[background-color,scale] duration-150 hover:bg-primaria-suave active:scale-[0.98]"
               >
                 “{frase}”
               </button>

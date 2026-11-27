@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MEIva: duas direções de evolução</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: "Atkinson Hyperlegible Next", system-ui, sans-serif; background: #d9dedc; color: #1b2422; padding: 32px; }
+  h1 { font-size: 32px; } h2.dir { font-size: 26px; margin: 40px 0 4px; } p.dir { font-size: 18px; max-width: 70ch; color: #3c4744; }
+  .linha { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 16px; }
+  .tema { font-weight: 700; margin-top: 20px; }
+
+  /* Tokens por tema */
+  .claro { --fundo:#f2f4f2; --sup:#fdfdfb; --texto:#1b2422; --suave:#4a5552; --borda:#dfe4e1; --bf:#7a8380;
+    --prim:#0d5c57; --prim-s:#e1eeeb; --sobre-prim:#fff; --ac:#f2b134; --sobre-ac:#1b2422;
+    --ent:#1d7343; --sai:#b0382a; --fia:#2d5b9a; --fia-s:#e8eef8; --heroi:#0d5c57; --sobre-heroi:#ffffff; --heroi-suave:#cfe5e1; }
+  .escuro { --fundo:#131a19; --sup:#1b2422; --texto:#edf0ee; --suave:#a9b4b0; --borda:#2c3735; --bf:#748380;
+    --prim:#5cc2b7; --prim-s:#17302d; --sobre-prim:#0c1514; --ac:#f2b134; --sobre-ac:#1b2422;
+    --ent:#63c98d; --sai:#f2907f; --fia:#8fb5ee; --fia-s:#18243a; --heroi:#0f3f3b; --sobre-heroi:#edf0ee; --heroi-suave:#a9cfc9; }
+
+  .tel { width: 300px; height: 600px; border-radius: 28px; overflow: hidden; background: var(--fundo); color: var(--texto);
+    display: flex; flex-direction: column; font-size: 15px; line-height: 1.5; box-shadow: 0 0 0 8px #1b2422; position: relative; }
+  .rot { font-size: 14px; color: #3c4744; margin-top: 12px; text-align: center; width: 300px; }
+  .topo { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 10px; }
+  .marca { color: var(--prim); font-size: 20px; } .marca b { font-weight: 700; }
+  .chip { border: 1px solid var(--bf); border-radius: 999px; padding: 5px 12px; font-size: 14px; }
+  .corpo { flex: 1; overflow: hidden; padding: 4px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .abas { display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid var(--borda); background: var(--sup); font-size: 13px; }
+  .abas span { text-align: center; padding: 10px 0 12px; color: var(--suave); }
+  .abas .at { color: var(--prim); font-weight: 700; }
+  .A .abas .at { background: var(--prim-s); border-radius: 14px; margin: 5px; padding: 5px 0 7px; }
+  .B .abas .at { box-shadow: inset 0 3px 0 var(--prim); }
+  .campo { display: flex; gap: 8px; padding: 10px 16px; background: var(--sup); border-top: 1px solid var(--borda); }
+  .campo .in { flex: 1; border: 1px solid var(--bf); border-radius: 14px; padding: 9px 12px; color: var(--suave); background: var(--fundo); }
+  .btn { background: var(--ac); color: var(--sobre-ac); font-weight: 700; border-radius: 14px; padding: 9px 14px; display: inline-block; }
+  .eu { align-self: flex-end; background: var(--prim); color: var(--sobre-prim); border-radius: 18px 18px 6px 18px; padding: 8px 14px; max-width: 80%; }
+  .t-ag { max-width: 92%; }
+  .lanc { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; }
+  .lanc + .lanc { border-top: 1px solid var(--borda); }
+  .ic { width: 20px; text-align: center; font-weight: 700; }
+  .A .ic.cir { width: 30px; height: 30px; border-radius: 99px; display: grid; place-items: center; }
+  .lanc .o { flex: 1; } .lanc .o b { display: block; } .lanc .o small { color: var(--suave); font-size: 14px; }
+  .val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .val .selo { display: inline-block; margin-top: 2px; } .lanc .o { min-width: 0; } b.fia { white-space: nowrap; }
+  .val small { display: block; font-weight: 400; color: var(--suave); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+  .ent { color: var(--ent); } .sai { color: var(--sai); } .fia { color: var(--fia); }
+  .selo { background: var(--fia-s); color: var(--fia); font-weight: 700; border-radius: 6px; padding: 0 6px; font-size: 13px; }
+  .rs { font-size: .5em; font-weight: 400; vertical-align: .55em; margin-right: .15em; }
+  .h1 { font-size: 26px; font-weight: 700; line-height: 1.2; }
+  .lbl { font-weight: 700; }
+  .suave { color: var(--suave); }
+
+  /* Comprovante */
+  .comp { background: var(--sup); border: 1px solid var(--borda); border-radius: 16px; padding: 4px 14px 10px; }
+  .comp .pe { display: flex; justify-content: space-between; border-top: 1px dashed var(--bf); margin-top: 4px; padding-top: 8px; }
+  .B .comp { border-radius: 4px 4px 16px 16px; border-top: 3px solid var(--prim); }
+  .B .comp .cab { font-size: 13px; color: var(--suave); padding-top: 6px; display: flex; justify-content: space-between; }
+  .A .bolha-ag { background: var(--sup); border: 1px solid var(--borda); border-radius: 18px 18px 18px 6px; padding: 10px 14px; }
+
+  /* Herói */
+  .heroiA { background: var(--prim-s); border-radius: 22px; padding: 16px; }
+  .heroiA .lbl { color: var(--prim); }
+  .heroiB { background: var(--heroi); color: var(--sobre-heroi); border-radius: 22px; padding: 18px 16px; }
+  .heroiB .lbl { color: var(--heroi-suave); }
+  .num { font-size: 40px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .barra { height: 10px; border-radius: 9px; background: var(--borda); overflow: hidden; } .barra i { display: block; height: 100%; border-radius: 9px; }
+  .seg { display: flex; background: var(--borda); border-radius: 12px; padding: 3px; font-size: 13px; }
+  .seg span { flex: 1; text-align: center; padding: 3px 0; color: var(--suave); } .seg .at { background: var(--sup); color: var(--prim); font-weight: 700; border-radius: 9px; }
+  .B .seg { background: none; border-bottom: 1px solid var(--borda); border-radius: 0; padding: 0; }
+  .B .seg .at { background: none; border-radius: 0; box-shadow: inset 0 -3px 0 var(--prim); }
+  .bloco { border: 1px solid var(--borda); background: var(--sup); border-radius: 16px; padding: 12px 14px; }
+  .B .bloco { background: none; border: 0; border-top: 1px solid var(--borda); border-radius: 0; padding: 12px 0 0; }
+  .fiadoH { border-radius: 22px; padding: 16px; background: var(--fia-s); }
+  .B .fiadoH { background: var(--sup); border: 1px solid var(--borda); border-left: 6px solid var(--fia); border-radius: 6px 22px 22px 6px; }
+  .data { font-weight: 700; color: var(--suave); font-size: 14px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<h1>MEIva: duas direções de evolução</h1>
+<p class="dir">Mesmo conteúdo (dados fictícios da doceria), mesma marca. Prévia em escala reduzida: no app o corpo continua com 18px.</p>
+
+<h2 class="dir">Direção A: Ajuste fino (conservadora)</h2>
+<p class="dir">Mantém o layout de hoje e tira o que é genérico: fundo mais frio, "R$" menor no número grande, raios por hierarquia, cabeçalho da Conversa num andar só, comprovante como uma linha no pé da resposta. O ícone mantém o círculo, mais discreto.</p>
+<div id="A"></div>
+
+<h2 class="dir">Direção B: Comprovante (mais ousada)</h2>
+<p class="dir">O momento de confiança vira a assinatura: cada anotação aparece como um comprovante com hora e o efeito no caixa. O agente fala sem bolha (nada de cara de mensageiro). O Resumo abre num bloco petróleo cheio com o saldo; listas viram linhas com divisória, sem cartões; aba ativa com traço e negrito; fiado com a faixa azul da "conta em aberto".</p>
+<div id="B"></div>
+
+<script>
+const R = (v) => `<span class="rs">R$</span>${v}`;
+const abas = (i) => `<div class="abas">${["Conversa","Resumo","Fiados"].map((n,k)=>`<span class="${k===i?"at":""}">${["💬","📊","👥"][k].replace(/./u,"")}${n}</span>`).join("")}</div>`;
+const topo = (chip) => `<div class="topo"><span class="marca"><b>MEI</b>va</span>${chip?`<span class="chip">Hoje <b>R$ 68,00</b></span>`:""}</div>`;
+
+function conversa(d) {
+  const linhas = `
+    <div class="lanc"><span class="ic ent ${d==="A"?"cir":""}" style="${d==="A"?"background:var(--prim-s)":""}">↙</span><span class="o"><b>pudim</b><small>Venda no Pix</small></span><span class="val ent">+R$ 50,00<small>Desfazer</small></span></div>
+    <div class="lanc"><span class="ic fia ${d==="A"?"cir":""}" style="${d==="A"?"background:var(--fia-s)":""}">◷</span><span class="o"><b>bolo de cenoura</b><small>Fiado para Marta</small></span><span class="val fia">R$ 40,00<br><span class="selo">a receber</span><small>Desfazer</small></span></div>`;
+  const comp = d === "A"
+    ? `<div class="bolha-ag t-ag">Anotei a venda do pudim no Pix e o bolo fiado para a Marta.${linhas}<div class="comp" style="border:0;padding:0;background:none"><div class="pe"><span class="suave">Caixa de hoje agora</span><b>R$ 68,00</b></div></div></div>`
+    : `<p class="t-ag">Anotei a venda do pudim no Pix e o bolo fiado para a Marta.</p>
+       <div class="comp"><div class="cab"><span>Anotado às 14:32</span><span>2 anotações</span></div>${linhas}
+       <div class="pe"><span>Caixa de hoje agora</span><b>${R("68,00")} <span class="ent" style="font-size:13px">▲ 50</span></b></div></div>`;
+  return `<div class="tel ${d}">${topo(true)}<div class="corpo"><div class="eu">Vendi 50 de pudim e a Marta levou um bolo de 40 fiado</div>${comp}</div>
+    <div class="campo"><span class="in">Escreva aqui…</span><span class="btn">Enviar</span></div>${abas(0)}</div>`;
+}
+
+function resumo(d) {
+  const heroi = d === "A"
+    ? `<div class="heroiA"><div class="lbl">Dinheiro no caixa</div><div class="num">${R("586,00")}</div><div class="suave">Hoje sobrou <b style="color:var(--texto)">R$ 68,00</b></div></div>`
+    : `<div class="heroiB"><div class="lbl">Dinheiro no caixa</div><div class="num">${R("586,00")}</div><div>Hoje <b>+R$ 68,00</b></div></div>`;
+  return `<div class="tel ${d}">${topo(false)}<div class="corpo"><div class="h1">Resumo</div>${heroi}<span class="btn" style="text-align:center">Anotar uma venda</span>
+    <div class="bloco"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>Entrou e saiu</b></div>
+    <div class="seg" style="margin:8px 0"><span class="at">Hoje</span><span>7 dias</span><span>Este mês</span></div>
+    <div style="display:flex;justify-content:space-between"><span><span class="ent">↙</span> Entrou</span><b class="ent">+R$ 86,00</b></div><div class="barra"><i style="width:100%;background:var(--ent)"></i></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px"><span><span class="sai">↗</span> Saiu</span><b class="sai">−R$ 18,00</b></div><div class="barra"><i style="width:21%;background:var(--sai)"></i></div></div>
+    <div class="bloco" style="display:flex;justify-content:space-between;align-items:center"><span><span class="fia">◷</span> Fiados <b class="fia">R$ 185,00</b></span><span style="color:var(--prim);font-weight:700;text-decoration:underline">Ver quem deve</span></div>
+    </div>${abas(1)}</div>`;
+}
+
+function fiado(d) {
+  return `<div class="tel ${d}">${topo(false)}<div class="corpo"><span style="color:var(--prim);font-weight:700">‹ Todos os fiados</span>
+    <div class="fiadoH"><div class="h1" style="font-size:22px">Marta</div><div class="suave" style="margin-top:6px">Falta receber</div><div class="num fia">${R("80,00")}</div>
+    <span class="btn" style="margin-top:10px">Registrar pagamento</span></div>
+    <div class="${d==="A"?"bloco":"bloco"}"><b>O que levou e o que pagou</b><div class="data">25 de novembro</div>
+    <div class="lanc"><span class="ic fia">◷</span><span class="o"><b>bolo de cenoura</b><small>Fiado</small></span><span class="val fia">R$ 40,00</span></div>
+    <div class="data">22 de novembro</div>
+    <div class="lanc"><span class="ic fia">◷</span><span class="o"><b>2 pudins</b><small>Fiado</small></span><span class="val fia">R$ 40,00</span></div></div>
+    </div>${abas(2)}</div>`;
+}
+
+for (const d of ["A","B"]) {
+  const alvo = document.getElementById(d);
+  for (const tema of ["claro","escuro"]) {
+    alvo.insertAdjacentHTML("beforeend", `<div class="tema">${tema === "claro" ? "Claro" : "Escuro"}</div>
+      <div class="linha ${tema}">${[conversa(d), resumo(d), fiado(d)].map((h,i)=>`<div>${h}<div class="rot">${["Conversa","Resumo","Fiados: Marta"][i]}</div></div>`).join("")}</div>`);
+  }
+}
+</script>
+</body>
+</html>

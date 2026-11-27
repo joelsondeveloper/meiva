@@ -11,8 +11,9 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { IconeEnviar, IconeSaldo } from "@/components/icones";
+import { IconeEnviar, IconeNovaConversa, IconeSaldo } from "@/components/icones";
 import { Marca } from "@/components/marca";
+import { Valor } from "@/components/valor";
 import { buscarDia, desfazerLancamento, enviarMensagens, textoDoErro } from "@/lib/chat/api";
 import {
   adicionarMensagem as adicionar,
@@ -76,10 +77,12 @@ export function Chat() {
 
   // Mantém a última mensagem (ou o "Anotando…") à vista. Usa o id da última
   // mensagem, e não o tamanho da lista: com o limite de 10, o tamanho para de mudar.
+  // O resumo chegando aumenta o último comprovante ("Caixa de hoje agora"): rola de novo nessa hora.
   const ultimaId = mensagens.at(-1)?.id;
+  const temResumo = resumo !== null;
   useEffect(() => {
     fimRef.current?.scrollIntoView({ block: "end" });
-  }, [ultimaId, anotando]);
+  }, [ultimaId, anotando, temResumo]);
 
   function preencher(frase: string) {
     setTexto(frase);
@@ -156,6 +159,8 @@ export function Chat() {
   }
 
   const vazio = mensagens.length === 0 && !anotando;
+  // Só o comprovante mais recente mostra "Caixa de hoje agora" (os antigos ficariam desatualizados).
+  const ultimoComprovanteId = mensagens.findLast((m) => m.autor === "meiva" && m.tipo === "resposta" && m.lancamentos.length > 0)?.id;
 
   return (
     <div className="mx-auto flex h-[calc(100dvh-var(--altura-abas))] w-full max-w-[75rem] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] lg:h-dvh">
@@ -164,39 +169,28 @@ export function Chat() {
       </Suspense>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="border-b border-borda bg-superficie px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-3 sm:px-6 lg:px-8 lg:pt-8 lg:pb-5">
+        <header className="border-b border-borda bg-superficie px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 sm:px-6 lg:px-8 lg:pt-8 lg:pb-5">
+          {/* Celular: um andar só (marca + saldo de hoje). O título fica para o leitor de tela. */}
           <div className="flex min-h-12 items-center justify-between gap-3 lg:hidden">
             <Marca />
             <Link
               href="/resumo"
-              className="flex min-h-12 items-center gap-2 rounded-full border border-borda-forte px-4"
+              className="flex min-h-12 items-center gap-2 rounded-full border border-borda-forte px-4 transition-colors duration-150 hover:bg-fundo"
             >
               <IconeSaldo className="size-5 text-primaria" />
               <span>
                 Hoje{" "}
-                <strong className={`tabular-nums ${resumo && resumo.dia.saldo < 0 ? "text-saida" : ""}`}>
-                  {resumo ? formatarCentavos(resumo.dia.saldo) : "…"}
-                </strong>
+                {resumo ? (
+                  <Valor centavos={resumo.dia.saldo} className={`font-bold ${resumo.dia.saldo < 0 ? "text-saida" : ""}`} />
+                ) : (
+                  <strong>…</strong>
+                )}
               </span>
             </Link>
           </div>
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h1 className="text-3xl font-bold">Conversa</h1>
-              <p className={`text-texto-suave ${vazio ? "" : "hidden lg:block"}`}>
-                Conte o que vendeu, gastou ou recebeu.
-              </p>
-            </div>
-            {mensagens.length > 0 && (
-              <button
-                type="button"
-                onClick={novaConversa}
-                disabled={anotando || desfazendo !== null}
-                className="min-h-12 shrink-0 rounded-2xl px-3 font-bold text-primaria hover:bg-primaria-suave disabled:opacity-60"
-              >
-                Nova conversa
-              </button>
-            )}
+          <div className="sr-only lg:not-sr-only">
+            <h1 className="text-3xl font-bold">Conversa</h1>
+            <p className="text-texto-suave">Conte o que vendeu, gastou ou recebeu.</p>
           </div>
         </header>
 
@@ -205,18 +199,34 @@ export function Chat() {
             <BoasVindas onEscolher={preencher} />
           ) : (
             <div role="log" aria-label="Conversa">
-              <ol className="flex flex-col gap-4">
+              <ol className="flex flex-col gap-5">
                 {mensagens.map((m) => (
-                  <li key={m.id} className="flex motion-safe:animate-entrar">
-                    <BolhaMensagem mensagem={m} desfazendo={desfazendo} onDesfazer={desfazer} />
+                  <li key={m.id} className="flex animate-entrar">
+                    <BolhaMensagem
+                      mensagem={m}
+                      desfazendo={desfazendo}
+                      onDesfazer={desfazer}
+                      caixaAgora={m.id === ultimoComprovanteId ? (resumo?.dia.saldo ?? null) : null}
+                    />
                   </li>
                 ))}
                 {anotando && (
-                  <li className="flex motion-safe:animate-entrar">
+                  <li className="flex animate-entrar">
                     <BolhaAnotando />
                   </li>
                 )}
               </ol>
+              {!anotando && (
+                <button
+                  type="button"
+                  onClick={novaConversa}
+                  disabled={desfazendo !== null}
+                  className="mt-4 flex min-h-12 items-center gap-2 rounded-controle px-2 -ml-2 font-bold text-primaria transition-colors duration-150 hover:bg-primaria-suave disabled:opacity-60"
+                >
+                  <IconeNovaConversa className="size-5" />
+                  Começar outra conversa
+                </button>
+              )}
             </div>
           )}
           <div ref={fimRef} />
@@ -242,15 +252,16 @@ export function Chat() {
               enterKeyHint="send"
               autoComplete="off"
               placeholder="Escreva aqui…"
-              className="max-h-40 min-h-14 flex-1 resize-none rounded-2xl border border-borda-forte bg-fundo px-4 py-3 text-lg text-texto [field-sizing:content] placeholder:text-texto-suave"
+              className="max-h-40 min-h-14 flex-1 resize-none rounded-controle border border-borda-forte bg-fundo px-4 py-3 text-lg text-texto [field-sizing:content] placeholder:text-texto-suave"
             />
             <button
               type="submit"
               disabled={anotando || !texto.trim()}
-              className="flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-2xl bg-acento px-5 text-lg font-bold text-sobre-acento transition-[background-color,scale] duration-150 hover:bg-acento-forte active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-controle bg-acento px-4 sm:px-5 text-lg font-bold text-sobre-acento transition-[background-color,scale] duration-150 hover:bg-acento-forte active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <IconeEnviar className="size-5" />
-              Enviar
+              {/* Em telas de 320px o rótulo vira só para o leitor de tela, para o campo caber numa linha. */}
+              <span className="max-[359px]:sr-only">Enviar</span>
             </button>
           </div>
           {texto.length >= MOSTRAR_CONTADOR_A_PARTIR_DE && (

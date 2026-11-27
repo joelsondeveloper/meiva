@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { IconeEntrada, IconeFiado, IconeSaida } from "@/components/icones";
+import { IconeAvancar, IconeEntrada, IconeFiado, IconeSaida } from "@/components/icones";
 import { LinhaLancamento, SeloAReceber } from "@/components/lancamento/linha";
 import { BotaoPrincipal, BotaoSecundario, Carregando, Pagina, Vazio } from "@/components/pagina";
+import { Valor } from "@/components/valor";
 import { inicioDoPeriodo, legendaDoPeriodo, lerPeriodo, PERIODOS, type Periodo } from "@/lib/dados/periodo";
 import { repositorioDasPaginas } from "@/lib/dados/repositorio";
 import { hojeBR } from "@/lib/datas";
-import { formatarCentavos } from "@/lib/formatacao";
 import { montarResumoCaixa } from "@/lib/lancamentos/resumo";
 import { calcularSaldo } from "@/lib/lancamentos/saldo";
 
@@ -22,7 +22,11 @@ export default function PaginaResumo({ searchParams }: PageProps<"/resumo">) {
     <Pagina
       titulo="Resumo"
       descricao="Como está o dinheiro do seu negócio."
-      acao={<BotaoPrincipal href="/">Anotar uma venda</BotaoPrincipal>}
+      acao={
+        <div className="hidden sm:block">
+          <BotaoPrincipal href="/">Anotar uma venda</BotaoPrincipal>
+        </div>
+      }
     >
       <Suspense fallback={<Carregando texto="Somando o seu caixa…" />}>
         <ConteudoResumo searchParams={searchParams} />
@@ -57,45 +61,43 @@ async function ConteudoResumo({ searchParams }: Pick<PageProps<"/resumo">, "sear
   const pessoas = caixa.aReceber.porPessoa.length;
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-8">
-      <div className="flex flex-col gap-6">
-        <section
-          aria-labelledby="caixa-titulo"
-          className="flex flex-wrap gap-x-12 gap-y-6 rounded-3xl bg-primaria-suave p-5 sm:p-8"
-        >
-          <div className="min-w-[min(100%,16rem)] flex-[3_1_0]">
-            <h2 id="caixa-titulo" className="text-lg font-bold text-primaria">
-              Dinheiro no caixa
-            </h2>
-            <p
-              className={`text-4xl font-bold tabular-nums sm:text-5xl ${caixa.saldoAcumulado < 0 ? "text-saida" : "text-texto"}`}
-            >
-              {formatarCentavos(caixa.saldoAcumulado)}
-            </p>
-            <p className="mt-1 text-texto-suave">Tudo que entrou menos tudo que saiu, desde o começo.</p>
-          </div>
-          <div className="min-w-[min(100%,13rem)] flex-[2_1_0]">
-            <h2 className="text-lg font-bold text-primaria">Saldo de hoje</h2>
-            <p className={`text-3xl font-bold tabular-nums sm:text-4xl ${caixa.dia.saldo < 0 ? "text-saida" : "text-texto"}`}>
-              {formatarCentavos(caixa.dia.saldo)}
-            </p>
-            <p className="mt-1 text-texto-suave">O que entrou menos o que saiu hoje.</p>
-          </div>
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
+      <div className="flex flex-col gap-8">
+        {/* O único bloco de cor cheia do app: o dinheiro que a pessoa tem. */}
+        <section aria-labelledby="caixa-titulo" className="rounded-bloco bg-heroi p-6 text-sobre-heroi sm:p-8">
+          <h2 id="caixa-titulo" className="text-lg font-bold text-heroi-suave">
+            Dinheiro no caixa
+          </h2>
+          <p className="mt-1 text-5xl font-bold lg:text-[3.5rem] lg:leading-[1.1]">
+            <Valor centavos={Math.abs(caixa.saldoAcumulado)} sinal={caixa.saldoAcumulado < 0 ? "−" : ""} destaque />
+          </p>
+          <p className="mt-2 text-heroi-suave">Tudo que entrou menos tudo que saiu, desde o começo.</p>
+          <p className="mt-5 flex flex-wrap items-baseline gap-x-3 border-t border-heroi-suave/40 pt-4 text-lg">
+            <span>Saldo de hoje</span>
+            <Valor
+              centavos={Math.abs(caixa.dia.saldo)}
+              sinal={caixa.dia.saldo > 0 ? "+" : caixa.dia.saldo < 0 ? "−" : ""}
+              className="text-2xl font-bold"
+            />
+          </p>
         </section>
+
+        {/* No celular o botão vem depois do saldo: primeiro a pessoa vê quanto tem. */}
+        <div className="sm:hidden [&>a]:w-full">
+          <BotaoPrincipal href="/">Anotar uma venda</BotaoPrincipal>
+        </div>
 
         <EntrouSaiu periodo={periodo} entradas={periodoSaldo.entradas} saidas={periodoSaldo.saidas} />
       </div>
 
-      <div className="flex flex-col gap-6">
-        <section aria-labelledby="receber-titulo" className="rounded-3xl border border-borda bg-superficie p-6">
-          <h2 id="receber-titulo" className="flex items-center gap-2 text-lg font-bold">
-            <IconeFiado className="size-5 text-fiado" />
+      <div className="flex flex-col gap-8">
+        <section aria-labelledby="receber-titulo">
+          <h2 id="receber-titulo" className="flex items-center gap-2 text-xl font-bold">
+            <IconeFiado className="size-6 text-fiado" />
             Fiados para receber
           </h2>
-          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="text-4xl font-bold tabular-nums text-fiado">
-              {formatarCentavos(caixa.aReceber.total)}
-            </span>
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Valor centavos={caixa.aReceber.total} className="text-4xl font-bold text-fiado" />
             {caixa.aReceber.total > 0 && <SeloAReceber />}
           </p>
           <p className="mt-1 text-texto-suave">
@@ -108,18 +110,19 @@ async function ConteudoResumo({ searchParams }: Pick<PageProps<"/resumo">, "sear
           {pessoas > 0 && (
             <Link
               href="/fiados"
-              className="mt-3 inline-flex min-h-12 items-center font-bold text-primaria underline underline-offset-4"
+              className="mt-1 -ml-2 inline-flex min-h-12 items-center gap-1 rounded-controle px-2 font-bold text-primaria underline underline-offset-4 transition-colors duration-150 hover:bg-primaria-suave"
             >
               Ver quem deve
+              <IconeAvancar className="size-5" />
             </Link>
           )}
         </section>
 
-        <section aria-labelledby="ultimos-titulo" className="rounded-3xl border border-borda bg-superficie p-6">
-          <h2 id="ultimos-titulo" className="text-lg font-bold">
+        <section aria-labelledby="ultimos-titulo" className="border-t border-borda pt-6">
+          <h2 id="ultimos-titulo" className="text-xl font-bold">
             Últimas anotações
           </h2>
-          <ul className="mt-2 divide-y divide-borda">
+          <ul className="mt-1 divide-y divide-borda">
             {ultimos.map((l) => (
               <li key={l.id}>
                 <LinhaLancamento lancamento={l} />
@@ -142,12 +145,12 @@ function EntrouSaiu({ periodo, entradas, saidas }: { periodo: Periodo; entradas:
   const legenda = legendaDoPeriodo(periodo);
 
   return (
-    <section aria-labelledby="periodo-titulo" className="rounded-3xl border border-borda bg-superficie p-5 sm:p-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <section aria-labelledby="periodo-titulo">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <h2 id="periodo-titulo" className="text-xl font-bold">
           Entrou e saiu
         </h2>
-        <nav aria-label="Período" className="flex rounded-2xl bg-fundo p-1">
+        <nav aria-label="Período" className="flex border-b border-borda">
           {PERIODOS.map((p) => {
             const atual = p.id === periodo;
             return (
@@ -156,8 +159,8 @@ function EntrouSaiu({ periodo, entradas, saidas }: { periodo: Periodo; entradas:
                 href={p.id === "hoje" ? "/resumo" : `/resumo?periodo=${p.id}`}
                 aria-current={atual ? "true" : undefined}
                 scroll={false}
-                className={`flex min-h-12 flex-1 items-center justify-center rounded-xl px-2 whitespace-nowrap sm:px-4 transition-colors duration-150 ${
-                  atual ? "bg-superficie font-bold text-primaria shadow-[0_0_0_1px_var(--cor-borda-forte)]" : "text-texto-suave hover:text-texto"
+                className={`-mb-px flex min-h-12 flex-1 items-center justify-center border-b-[3px] px-3 whitespace-nowrap transition-colors duration-150 sm:flex-none sm:px-4 ${
+                  atual ? "border-primaria font-bold text-primaria" : "border-transparent text-texto-suave hover:text-texto"
                 }`}
               >
                 {p.rotulo}
@@ -174,7 +177,7 @@ function EntrouSaiu({ periodo, entradas, saidas }: { periodo: Periodo; entradas:
 
       <p className="mt-6 border-t border-borda pt-4 text-lg">
         {sobra >= 0 ? "Sobrou " : "Faltou "}
-        <strong className={`tabular-nums ${sobra < 0 ? "text-saida" : ""}`}>{formatarCentavos(Math.abs(sobra))}</strong>{" "}
+        <Valor centavos={Math.abs(sobra)} className={`font-bold ${sobra < 0 ? "text-saida" : ""}`} />{" "}
         {legenda}.
         <span className="block text-base text-texto-suave">Fiado só conta quando a pessoa paga.</span>
       </p>
@@ -206,15 +209,16 @@ function Barra({
           <Icone className={`size-5 ${texto}`} />
           {rotulo}
         </dt>
-        <dd className={`text-2xl font-bold tabular-nums ${texto}`}>
-          {valor > 0 ? sinal : ""}
-          {formatarCentavos(valor)}
+        <dd className={`text-2xl font-bold ${texto}`}>
+          <Valor centavos={valor} sinal={valor > 0 ? sinal : ""} />
         </dd>
       </div>
-      <div className="h-3 overflow-hidden rounded-full bg-fundo" aria-hidden="true">
+      <div className="h-3 overflow-hidden rounded-full bg-borda" aria-hidden="true">
+        {/* Escala em vez de largura: anima só transform (mais leve) ao trocar o período. */}
         <div
-          className={`h-full rounded-full ${cor} motion-safe:transition-[width] motion-safe:duration-300`}
-          style={{ width: `${Math.round(proporcao * 100)}%` }}
+          data-sem-movimento-reduzido
+          className={`h-full origin-left rounded-full ${cor} transition-[scale] duration-[250ms] ease-[var(--ease-movimento)]`}
+          style={{ scale: `${Math.round(proporcao * 1000) / 1000} 1` }}
         />
       </div>
     </div>
