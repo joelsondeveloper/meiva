@@ -105,6 +105,11 @@ export const rateLimitInterpret = criarRateLimit({ limite: 60, janelaMs: 10 * 60
 /** ...e no máximo 500 por dia no total (protege o gasto com o modelo). */
 export const tetoDiarioInterpret = criarTetoDiario({ limite: 500 });
 
+/** POST /api/transcrever: 60 áudios a cada 10 minutos por IP... */
+export const rateLimitTranscrever = criarRateLimit({ limite: 60, janelaMs: 10 * 60 * 1000 });
+/** ...e no máximo 500 por dia no total (cada áudio tem até 60 s). */
+export const tetoDiarioTranscrever = criarTetoDiario({ limite: 500 });
+
 /** POST /api/lancamentos/:id/desfazer: 30 a cada 10 minutos por IP. */
 export const rateLimitDesfazer = criarRateLimit({ limite: 30, janelaMs: 10 * 60 * 1000 });
 
@@ -124,9 +129,9 @@ export function respostaLimiteExcedido(tenteEmSegundos: number, oQue = "requisi�
 }
 
 /** 429 do teto diário global, em português, com Retry-After até a meia-noite. */
-export function respostaTetoDiario(tenteEmSegundos: number): Response {
+export function respostaTetoDiario(tenteEmSegundos: number, oQue = "mensagens"): Response {
   return json429(
-    "A MEIva atingiu o limite de mensagens de hoje. Volta a funcionar à meia-noite (horário de Brasília).",
+    `A MEIva atingiu o limite de ${oQue} de hoje. Volta a funcionar à meia-noite (horário de Brasília).`,
     tenteEmSegundos,
   );
 }
