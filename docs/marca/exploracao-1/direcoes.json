@@ -1,0 +1,44 @@
+[
+  {
+    "id": "b1-cursor",
+    "nome": "B1 · Cursor na haste",
+    "familia": "(a) wordmark com detalhe",
+    "ideia": "O I de MEI é o cursor de digitação: a marca está sempre pronta para anotar."
+  },
+  {
+    "id": "b2-ibeam",
+    "nome": "B2 · Cursor em I",
+    "familia": "(a) wordmark com detalhe",
+    "ideia": "O I é o cursor de texto (⌶), que já tem forma de I: lê-se letra e lê-se \"escreva aqui\"."
+  },
+  {
+    "id": "c-monograma",
+    "nome": "C · M que guarda o va",
+    "familia": "(c) monograma",
+    "ideia": "O V do M desce até a linha e fica âmbar: o M de MEI carrega o \"va\" (vai, segue)."
+  },
+  {
+    "id": "d-caderninho",
+    "nome": "D · Caderninho",
+    "familia": "(b) símbolo + wordmark",
+    "ideia": "O caderninho do fiado que todo balcão conhece, agora com cursor: anotar sem papel."
+  },
+  {
+    "id": "e-campo",
+    "nome": "E · Campo",
+    "familia": "(d) só tipografia e forma simples",
+    "ideia": "A marca é o campo onde se escreve: um contorno de pílula e o cursor esperando a frase."
+  },
+  {
+    "id": "f-picote",
+    "nome": "F · Picote (ousada)",
+    "familia": "(e) ousada",
+    "ideia": "O comprovante (a assinatura do app) rasgado no alto em forma de M: cada anotação vira papel passado a limpo."
+  },
+  {
+    "id": "g-bloco",
+    "nome": "G · Cursor em bloco",
+    "familia": "(a) wordmark com detalhe",
+    "ideia": "O I vira o bloco de cursor que pisca; no ícone, o bloco âmbar fica sobre o M, como no terminal."
+  }
+]
