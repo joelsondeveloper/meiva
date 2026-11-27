@@ -30,7 +30,9 @@ import { formatarCentavos } from "@/lib/formatacao";
 import type { ResumoCaixa } from "@/lib/lancamentos/saldo";
 import type { LancamentoSalvo } from "@/lib/lancamentos/tipos";
 import { BoasVindas } from "./boas-vindas";
+import { juntarAoCampo } from "@/lib/chat/audio";
 import { BolhaAnotando, BolhaMensagem } from "./mensagens";
+import { BotaoMicrofone, EstadoGravacao, useGravador } from "./microfone";
 import { PainelCaixa } from "./painel-caixa";
 
 const MAX_CARACTERES = 500;
@@ -93,10 +95,18 @@ export function Chat() {
     requestAnimationFrame(() => campo.setSelectionRange(frase.length, frase.length));
   }
 
+  // Áudio: a transcrição só entra no campo (junto do que já estava escrito)
+  // e o foco volta para lá, para a pessoa conferir e tocar em Enviar.
+  const gravacao = useGravador({
+    onTexto: (falado) => preencher(juntarAoCampo(campoRef.current?.value ?? "", falado, MAX_CARACTERES)),
+  });
+  const gravandoOuTranscrevendo = gravacao.fase !== "parado";
+
   async function enviar(e?: FormEvent<HTMLFormElement>) {
     e?.preventDefault();
     const frase = texto.trim();
-    if (!frase || anotando) return;
+    if (!frase || anotando || gravandoOuTranscrevendo) return;
+    gravacao.limparErro();
 
     const doUsuario = { id: novoId(), autor: "usuario", texto: frase } as const;
     adicionar(doUsuario);
@@ -240,23 +250,28 @@ export function Chat() {
           <label htmlFor="mensagem" className="sr-only">
             O que aconteceu no caixa?
           </label>
+          <EstadoGravacao fase={gravacao.fase} segundos={gravacao.segundos} erro={gravacao.erro} />
           <div className="flex items-end gap-2">
             <textarea
               id="mensagem"
               ref={campoRef}
               value={texto}
-              onChange={(e) => setTexto(e.target.value)}
+              onChange={(e) => {
+                setTexto(e.target.value);
+                if (gravacao.erro) gravacao.limparErro();
+              }}
               onKeyDown={aoTeclar}
               maxLength={MAX_CARACTERES}
               rows={1}
               enterKeyHint="send"
               autoComplete="off"
               placeholder="Escreva aqui…"
-              className="max-h-40 min-h-14 flex-1 resize-none rounded-controle border border-borda-forte bg-fundo px-4 py-3 text-lg text-texto [field-sizing:content] placeholder:text-texto-suave"
+              className="max-h-40 min-h-14 min-w-0 flex-1 resize-none rounded-controle border border-borda-forte bg-fundo px-4 py-3 text-lg text-texto [field-sizing:content] placeholder:text-texto-suave"
             />
+            <BotaoMicrofone fase={gravacao.fase} onClick={gravacao.alternar} />
             <button
               type="submit"
-              disabled={anotando || !texto.trim()}
+              disabled={anotando || gravandoOuTranscrevendo || !texto.trim()}
               className="flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-controle bg-acento px-4 sm:px-5 text-lg font-bold text-sobre-acento transition-[background-color,scale] duration-150 hover:bg-acento-forte active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <IconeEnviar className="size-5" />
