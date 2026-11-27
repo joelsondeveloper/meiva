@@ -43,3 +43,12 @@ next-env.d.ts
 
 # saídas do Playwright MCP (screenshots e logs temporários)
 /.playwright-mcp/
+
+# ferramentas locais do agente (skills e configurações de cada máquina; não fazem parte do app)
+.agents/
+.claude/agents/
+.claude/settings.local.json
+.claude/skills/impeccable/
+.claude/skills/ui-ux-pro-max/
+skills-lock.json
+.playwright-mcp/
