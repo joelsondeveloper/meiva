@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IconeAlerta, IconeMicrofone, IconeParar } from "@/components/icones";
+import { IconeAlerta, IconeEnviar, IconeMicrofone, IconeParar } from "@/components/icones";
 import {
   AVISO_A_PARTIR_DE,
   ERRO_CURTO,
@@ -165,62 +165,100 @@ export function useGravador({ onTexto }: Opcoes) {
   return { fase, segundos, erro, limparErro: () => setErro(null), alternar };
 }
 
-/** Botão ao lado do campo. Mesmo lugar e tamanho nos dois estados: o segundo toque cai no mesmo ponto. */
-export function BotaoMicrofone({ fase, onClick }: { fase: FaseGravacao; onClick: () => void }) {
-  const gravando = fase === "gravando";
-  const ocupado = fase === "pedindo" || fase === "transcrevendo";
-  const rotulo = gravando ? "Parar gravação" : "Gravar áudio";
+/** O que o botão redondo ao lado do campo faz agora. */
+export type AcaoDoBotao = "gravar" | "enviar" | "parar";
+
+/** Vazio: microfone. Com texto: Enviar. Gravando: Parar. */
+export function acaoDoBotao(fase: FaseGravacao, texto: string): AcaoDoBotao {
+  if (fase === "gravando") return "parar";
+  return texto.trim() ? "enviar" : "gravar";
+}
+
+const ROTULO: Record<AcaoDoBotao, string> = {
+  gravar: "Gravar áudio",
+  enviar: "Enviar mensagem",
+  parar: "Parar gravação",
+};
+
+/**
+ * O único botão ao lado do campo (48px, redondo). Fica sempre no mesmo lugar:
+ * o segundo toque (parar, enviar) cai no mesmo ponto do primeiro.
+ * - gravar: contorno petróleo (o campo vazio já convida a falar);
+ * - enviar: âmbar cheio (o botão principal da tela);
+ * - parar: petróleo cheio, quadrado + "Parar" escrito.
+ * Nunca fica "apagado": enquanto espera (permissão, transcrição, resposta)
+ * avisa com aria-busy e o cursor de espera, sem mudar de cor.
+ */
+export function BotaoDoCampo({
+  acao,
+  ocupado,
+  onGravarOuParar,
+}: {
+  acao: AcaoDoBotao;
+  ocupado: boolean;
+  onGravarOuParar: () => void;
+}) {
+  const rotulo = ROTULO[acao];
   return (
     <button
-      type="button"
-      onClick={onClick}
-      disabled={ocupado}
+      type={acao === "enviar" ? "submit" : "button"}
+      onClick={(e) => {
+        if (ocupado) {
+          e.preventDefault();
+          return;
+        }
+        if (acao !== "enviar") onGravarOuParar();
+      }}
       aria-label={rotulo}
+      aria-busy={ocupado || undefined}
       title={rotulo}
-      data-gravando={gravando || undefined}
-      className="flex min-h-14 min-w-14 items-center justify-center rounded-controle border border-borda-forte bg-superficie text-primaria transition-[background-color,color,scale] duration-150 ease-out hover:bg-primaria-suave active:scale-[0.97] disabled:cursor-wait disabled:opacity-60 data-gravando:border-primaria data-gravando:bg-primaria data-gravando:text-sobre-primaria data-gravando:hover:bg-primaria-forte"
+      data-acao={acao}
+      className="flex h-12 min-w-12 shrink-0 items-center justify-center gap-2 rounded-full border-2 transition-[background-color,border-color,color,scale] duration-150 ease-out active:scale-[0.95] aria-busy:cursor-wait data-[acao=enviar]:border-acento data-[acao=enviar]:bg-acento data-[acao=enviar]:text-sobre-acento data-[acao=enviar]:hover:border-acento-forte data-[acao=enviar]:hover:bg-acento-forte data-[acao=gravar]:border-primaria data-[acao=gravar]:bg-superficie data-[acao=gravar]:text-primaria data-[acao=gravar]:hover:bg-primaria-suave data-[acao=parar]:border-primaria data-[acao=parar]:bg-primaria data-[acao=parar]:min-[360px]:px-4 data-[acao=parar]:font-bold data-[acao=parar]:text-sobre-primaria data-[acao=parar]:hover:bg-primaria-forte"
     >
-      {/* key: troca o ícone com um fade curto, em vez de pular. */}
-      <span key={gravando ? "parar" : "mic"} className="animate-trocar-icone">
-        {gravando ? <IconeParar className="size-6" /> : <IconeMicrofone className="size-6" />}
+      {/* key: troca o ícone com um fade curto (só fade com reduced-motion). */}
+      <span key={acao} className="flex animate-trocar-icone items-center gap-2">
+        {acao === "parar" ? (
+          <>
+            <IconeParar className="size-5" />
+            <span aria-hidden="true" className="max-[359px]:hidden">Parar</span>
+          </>
+        ) : acao === "enviar" ? (
+          <IconeEnviar className="size-5 -translate-x-px translate-y-px" />
+        ) : (
+          <IconeMicrofone className="size-6" />
+        )}
       </span>
     </button>
   );
 }
 
 /**
- * Linha de estado acima do campo: "Gravando 0:07" (texto + ponto, nunca só
- * cor), "Escrevendo o que você falou…" ou o erro com o que fazer.
+ * O que aparece DENTRO do campo no lugar do texto enquanto grava ou
+ * transcreve: "Gravando… 0:12" (ponto + texto, nunca só cor) e, nos últimos
+ * 10 s, "Termina sozinho em X s". Retorna null quando o campo mostra o texto.
  */
-export function EstadoGravacao({ fase, segundos, erro }: { fase: FaseGravacao; segundos: number; erro: string | null }) {
+export function StatusNoCampo({ fase, segundos }: { fase: FaseGravacao; segundos: number }) {
   if (fase === "gravando") {
-    const faltam = LIMITE_SEGUNDOS - segundos;
+    const faltam = Math.max(0, LIMITE_SEGUNDOS - segundos);
     return (
-      <div className="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 animate-entrar">
-        <p role="status" className="flex items-center gap-2 text-lg font-bold">
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
+        <p role="status" className="flex items-center gap-2 font-bold">
           <span aria-hidden="true" className="size-3 shrink-0 self-center rounded-full bg-erro motion-safe:animate-pulsar" />
-          Gravando
-          {/* O tempo não é anunciado a cada segundo: só o "Gravando". */}
-          <span aria-hidden="true" className="tabular-nums">{formatarTempo(segundos)}</span>
+          Gravando…
+          {/* O tempo não é anunciado a cada segundo: só o "Gravando…". */}
+          <span aria-hidden="true" className="valor">{formatarTempo(segundos)}</span>
         </p>
-        <p className="text-texto-suave">
-          {segundos >= AVISO_A_PARTIR_DE
-            ? `Termina sozinho em ${faltam} s.`
-            : "Fale e toque no quadrado para terminar."}
-        </p>
+        {segundos >= AVISO_A_PARTIR_DE && (
+          <p role="status" className="text-texto-suave">
+            Termina sozinho em <span className="valor">{faltam}</span> s
+          </p>
+        )}
       </div>
-    );
-  }
-  if (fase === "pedindo") {
-    return (
-      <p role="status" className="mb-2 text-texto-suave animate-entrar">
-        Se o celular perguntar, toque em Permitir para usar o microfone.
-      </p>
     );
   }
   if (fase === "transcrevendo") {
     return (
-      <p role="status" className="mb-2 flex items-center gap-3 text-texto-suave animate-entrar">
+      <p role="status" className="flex items-center gap-3 text-texto-suave">
         <span className="flex gap-1" aria-hidden="true">
           <span className="size-2 rounded-full bg-primaria motion-safe:animate-pulse" />
           <span className="size-2 rounded-full bg-primaria motion-safe:animate-pulse [animation-delay:200ms]" />
@@ -230,11 +268,23 @@ export function EstadoGravacao({ fase, segundos, erro }: { fase: FaseGravacao; s
       </p>
     );
   }
-  if (erro) {
+  return null;
+}
+
+/** Linha logo acima do campo: o pedido de permissão ou o erro com o que fazer. */
+export function AvisoAcimaDoCampo({ fase, erro }: { fase: FaseGravacao; erro: string | null }) {
+  if (fase === "pedindo") {
     return (
-      <p role="alert" className="mb-2 flex items-start gap-2 text-erro animate-entrar">
+      <p role="status" className="mb-2 text-texto-suave animate-entrar">
+        Se o celular perguntar, toque em Permitir para usar o microfone.
+      </p>
+    );
+  }
+  if (erro && fase === "parado") {
+    return (
+      <p role="alert" className="mb-2 flex items-start gap-2 break-words text-erro animate-entrar">
         <IconeAlerta className="mt-0.5 size-5" />
-        {erro}
+        <span className="min-w-0">{erro}</span>
       </p>
     );
   }

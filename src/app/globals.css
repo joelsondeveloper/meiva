@@ -244,6 +244,12 @@
     --fonte-valor: var(--font-lexend), var(--font-sans);
     /* Altura da barra de abas do celular (some no desktop e com o teclado aberto). */
     --altura-abas: calc(4.5rem + env(safe-area-inset-bottom));
+    /*
+     * Folga embaixo do campo de escrita. Com a barra de abas à vista, ela já
+     * cuida da área do gesto do iPhone; com o teclado aberto (barra escondida),
+     * o campo respeita env(safe-area-inset-bottom) sozinho.
+     */
+    --folga-campo: 0.75rem;
   }
 
   @media (min-width: 64rem) {
@@ -256,6 +262,7 @@
   @media (max-width: 63.99rem) {
     :root:has(textarea:focus) {
       --altura-abas: 0px;
+      --folga-campo: max(0.75rem, env(safe-area-inset-bottom));
     }
     :root:has(textarea:focus) [data-abas] {
       display: none;

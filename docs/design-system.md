@@ -63,6 +63,24 @@ Também existem as variações `-forte` (hover), `-suave` (fundos de ícone e de
 - **Fiados no computador:** sem ninguém escolhido, o detalhe abre na maior dívida.
 - **Alvos de toque:** 48px ou mais (`min-h-12`); botões principais com 56px (`min-h-14`).
 
+## Campo de escrita (Conversa)
+
+- **Campo arredondado** (`rounded-[1.5rem]`), multilinha: começa com 1 linha (48px, a altura do botão), cresce até 4 linhas e depois rola por dentro. Fonte de 18px (nunca abaixo de 16px, senão o iOS dá zoom ao focar).
+- **Um botão só**, redondo, de 48px, sempre no mesmo lugar:
+
+| Estado | Botão | Rótulo (aria-label) |
+| --- | --- | --- |
+| Campo vazio | microfone, contorno petróleo | "Gravar áudio" |
+| Com texto | enviar, âmbar cheio (o botão principal da tela) | "Enviar mensagem" |
+| Gravando | quadrado + "Parar", petróleo cheio (o "Parar" escrito some abaixo de 360px) | "Parar gravação" |
+
+- Nunca fica "desabilitado apagado": vazio ele já é o microfone. Enquanto espera (permissão, transcrição, resposta), mantém a cor e avisa com `aria-busy` e o cursor de espera.
+- **Gravando:** o campo mostra "Gravando… 0:12" no lugar do texto (ponto pulsando + texto) e, nos últimos 10 s, "Termina sozinho em X s". O texto já escrito não se perde.
+- **Erros do microfone** e o pedido de permissão aparecem logo acima do campo.
+- **Enter:** no computador envia (Shift+Enter quebra a linha); no celular (`pointer: coarse`) Enter quebra a linha e o envio é só pelo botão.
+- **Teclado aberto** (campo com foco, no celular): a barra de abas sai e o campo passa a respeitar `env(safe-area-inset-bottom)` sozinho (`--folga-campo`).
+- Sem verde de mensageiro e sem rabinho de balão: só os tokens deste documento.
+
 ## Movimento
 
 O movimento só aparece em resposta a uma ação da pessoa e dura pouco.
@@ -78,7 +96,7 @@ O movimento só aparece em resposta a uma ação da pessoa e dura pouco.
 | Trocar período no Resumo | sim | as barras mudam de escala (transform) em 250ms, ease-in-out |
 | Esperando resposta | sim | três pontos pulsando (trabalho em andamento) |
 | Gravando áudio | sim | ponto pulsando devagar (opacidade, 1,2s) ao lado de "Gravando 0:07"; parado com reduced-motion |
-| Microfone ↔ parar | sim | o ícone troca com fade + escala de 0.8 para 1, 150ms ease-out; só fade com reduced-motion |
+| Botão do campo (microfone ↔ enviar ↔ parar) | sim | cor e ícone trocam em 150ms ease-out (fade + escala de 0.8 para 1); só fade e cor com reduced-motion |
 | Qualquer coisa decorativa ou contínua | não | — |
 
 `prefers-reduced-motion: reduce`: sai o que desloca ou escala (subir, apertar, barras, traço da aba); ficam fade e troca de cor, que mostram o que mudou (`globals.css`).
