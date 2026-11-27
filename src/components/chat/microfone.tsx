@@ -178,7 +178,7 @@ export function BotaoMicrofone({ fase, onClick }: { fase: FaseGravacao; onClick:
       aria-label={rotulo}
       title={rotulo}
       data-gravando={gravando || undefined}
-      className="flex min-h-14 min-w-14 items-center justify-center rounded-controle border-2 border-primaria text-primaria transition-[background-color,color,scale] duration-150 ease-out hover:bg-primaria-suave active:scale-[0.97] disabled:cursor-wait disabled:opacity-60 data-gravando:bg-primaria data-gravando:text-sobre-primaria data-gravando:hover:bg-primaria-forte"
+      className="flex min-h-14 min-w-14 items-center justify-center rounded-controle border border-borda-forte bg-superficie text-primaria transition-[background-color,color,scale] duration-150 ease-out hover:bg-primaria-suave active:scale-[0.97] disabled:cursor-wait disabled:opacity-60 data-gravando:border-primaria data-gravando:bg-primaria data-gravando:text-sobre-primaria data-gravando:hover:bg-primaria-forte"
     >
       {/* key: troca o ícone com um fade curto, em vez de pular. */}
       <span key={gravando ? "parar" : "mic"} className="animate-trocar-icone">
