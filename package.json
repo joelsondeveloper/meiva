@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "next typegen && tsc --noEmit",
-    "comparar": "tsx --env-file=.env.local scripts/comparar-modelos.ts"
+    "comparar": "tsx --env-file=.env.local scripts/comparar-modelos.ts",
+    "comparar-audio": "tsx --env-file=.env.local scripts/comparar-transcricao.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.2",
