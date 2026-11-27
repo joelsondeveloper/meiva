@@ -206,11 +206,12 @@ export function Chat() {
             <Marca />
             <Link
               href="/resumo"
-              className="flex min-h-12 items-center gap-2 rounded-full border border-borda-forte px-4 transition-colors duration-150 hover:bg-fundo"
+              className="flex min-h-12 min-w-0 items-center gap-2 rounded-full border border-borda-forte px-3 transition-colors duration-150 hover:bg-fundo min-[360px]:px-4"
             >
-              <IconeSaldo className="size-5 text-primaria" />
-              <span>
-                Hoje{" "}
+              <IconeSaldo className="size-5 text-primaria max-[359px]:hidden" />
+              {/* Valor muito grande em 320px: "Saldo hoje" quebra a linha, o valor nunca. */}
+              <span className="text-right">
+                Saldo hoje{" "}
                 {resumo ? (
                   <Valor centavos={resumo.dia.saldo} className={`font-bold ${resumo.dia.saldo < 0 ? "text-saida" : ""}`} />
                 ) : (
