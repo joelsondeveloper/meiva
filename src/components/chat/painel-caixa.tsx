@@ -37,7 +37,7 @@ export function PainelCaixa({ resumo, erro, onTentarDeNovo }: Props) {
         <>
           <div>
             <p className="text-texto-suave">Saldo de hoje</p>
-            <p className={`text-4xl font-bold ${resumo.dia.saldo < 0 ? "text-saida" : ""}`}>
+            <p className={`text-3xl font-bold ${resumo.dia.saldo < 0 ? "text-saida" : ""}`}>
               <Valor centavos={resumo.dia.saldo} destaque />
             </p>
             <p className="text-texto-suave">O que entrou menos o que saiu hoje.</p>

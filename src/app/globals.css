@@ -168,9 +168,14 @@
 
 /*
  * Tipografia (público mais velho, quase sempre no celular):
- * - corpo de 18px (text-base) com entrelinha 1.55; nada abaixo de 16px
- *   (text-xs e text-sm não existem neste projeto);
+ * - tudo em rem: o tamanho da raiz é 100% × --escala-texto, então mudar a
+ *   escala (presets de tamanho de letra) aumenta ou diminui a tela inteira junto;
+ * - corpo de 18px (text-base, na escala 1) com entrelinha 1.55; nada abaixo de
+ *   16px (text-xs e text-sm não existem neste projeto);
  * - títulos com entrelinha de pelo menos 1.25 e o número grande do saldo com 1.15.
+ * Os tamanhos de 26/11 eram exagerados no celular (título de 32px, saldo de
+ * 40px no painel); a escala de 27/11 desce os degraus de cima. Ver
+ * docs/design-system.md.
  */
 @theme {
   --text-xs: initial;
@@ -181,13 +186,13 @@
   --text-lg--line-height: 1.5;
   --text-xl: 1.375rem;
   --text-xl--line-height: 1.45;
-  --text-2xl: 1.625rem;
-  --text-2xl--line-height: 1.4;
-  --text-3xl: 2rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.35;
+  --text-3xl: 1.75rem;
   --text-3xl--line-height: 1.25;
-  --text-4xl: 2.5rem;
+  --text-4xl: 2.125rem;
   --text-4xl--line-height: 1.2;
-  --text-5xl: 3rem;
+  --text-5xl: 2.625rem;
   --text-5xl--line-height: 1.15;
 
   /* Movimento: curto, só em resposta a uma ação (ver docs/design-system.md). */
@@ -269,7 +274,19 @@
     }
   }
 
+  :root {
+    /*
+     * Escala do texto: 1 = padrão (corpo de 18px). Os presets de tamanho de
+     * letra (próxima PR) só trocam este número; como tudo está em rem, texto,
+     * espaçamentos e alvos de toque crescem juntos. Media queries em rem não
+     * mudam (usam o tamanho do navegador), então o layout não pula de faixa.
+     */
+    --escala-texto: 1;
+  }
+
   html {
+    /* 100% respeita o tamanho de letra escolhido no navegador/sistema. */
+    font-size: calc(100% * var(--escala-texto));
     /* Não deixa o iOS/Android mexer no tamanho da fonte sozinho ao girar a tela. */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;

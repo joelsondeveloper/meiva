@@ -200,7 +200,7 @@ export function Chat() {
       </Suspense>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="border-b border-borda bg-superficie px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 sm:px-6 lg:px-8 lg:pt-8 lg:pb-5">
+        <header className="border-b border-borda bg-superficie px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 sm:px-6 lg:px-8 lg:pt-6 lg:pb-4">
           {/* Celular: um andar só (marca + saldo de hoje). O título fica para o leitor de tela. */}
           <div className="flex min-h-12 items-center justify-between gap-3 lg:hidden">
             <Marca />
