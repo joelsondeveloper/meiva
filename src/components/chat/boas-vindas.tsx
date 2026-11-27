@@ -1,3 +1,5 @@
+import { TextoComNumeros } from "@/components/texto-com-numeros";
+
 /** Frases de exemplo da conversa vazia: venda, gasto e recebimento. */
 export const EXEMPLOS = ["Vendi 50 reais de pudim", "Paguei 30 de luz", "Fulano me pagou"] as const;
 
@@ -21,7 +23,8 @@ export function BoasVindas({ onEscolher }: { onEscolher: (frase: string) => void
                 onClick={() => onEscolher(frase)}
                 className="flex min-h-12 w-full items-center rounded-controle border border-borda-forte bg-superficie px-4 py-2 text-left transition-[background-color,scale] duration-150 hover:bg-primaria-suave active:scale-[0.98]"
               >
-                “{frase}”
+                {/* span: num flex, os espaços em volta do número sumiriam. */}
+                <span>“<TextoComNumeros>{frase}</TextoComNumeros>”</span>
               </button>
             </li>
           ))}

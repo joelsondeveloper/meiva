@@ -244,6 +244,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Números dentro de frases e chips ("50 reais", "30 de luz"): mesma fonte dos valores, sem o zero cortado. */
+@utility numero {
+  font-family: var(--fonte-valor);
+}
+
 @layer base {
   :root {
     --fonte-valor: var(--font-lexend), var(--font-sans);
