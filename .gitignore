@@ -52,3 +52,7 @@ next-env.d.ts
 .claude/skills/ui-ux-pro-max/
 skills-lock.json
 .playwright-mcp/
+
+# gravações de teste do áudio (voz é dado pessoal; nunca vão para o git)
+/audios-teste/*
+!/audios-teste/LEIA-ME.md

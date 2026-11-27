@@ -44,6 +44,8 @@ export function mensagemDeErro(status: number, corpo: unknown): string {
     return doServidor.trim();
   }
 
+  // Só a gravação de áudio passa do limite da plataforma (que responde sem JSON).
+  if (status === 413) return "A gravação ficou grande demais. Grave até 1 minuto.";
   if (status === 429) return "Muitas mensagens seguidas. Espere um pouco e tente de novo.";
   if (status === 408 || status === 504) return "A resposta demorou demais. Tente de novo.";
   if (status >= 500) return "Algo deu errado do nosso lado. Tente de novo.";
@@ -79,6 +81,16 @@ const json = (method: string, corpo: unknown): RequestInit => ({
 /** Manda as últimas mensagens da conversa para o agente (a última é do usuário). */
 export const enviarMensagens = (mensagens: readonly MensagemChat[]) =>
   chamarApi<RespostaInterpret>("/api/interpret", json("POST", { mensagens }));
+
+/**
+ * Manda a gravação para virar texto. Só transcreve: o texto volta para o
+ * campo e a pessoa confere antes de enviar. O áudio não fica guardado.
+ */
+export function transcreverAudio(audio: Blob, signal?: AbortSignal) {
+  const corpo = new FormData();
+  corpo.set("audio", audio);
+  return chamarApi<{ texto: string }>("/api/transcrever", { method: "POST", body: corpo, signal });
+}
 
 export const buscarDia = () =>
   chamarApi<RespostaListagem>("/api/lancamentos", { cache: "no-store" });
