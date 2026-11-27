@@ -78,6 +78,8 @@ O movimento só aparece em resposta a uma ação da pessoa e dura pouco.
 | Abrir pessoa no Fiados | sim | o detalhe entra com `animate-entrar` |
 | Trocar período no Resumo | sim | as barras mudam de escala (transform) em 250ms, ease-in-out |
 | Esperando resposta | sim | três pontos pulsando (trabalho em andamento) |
+| Gravando áudio | sim | ponto pulsando devagar (opacidade, 1,2s) ao lado de "Gravando 0:07"; parado com reduced-motion |
+| Microfone ↔ parar | sim | o ícone troca com fade + escala de 0.8 para 1, 150ms ease-out; só fade com reduced-motion |
 | Qualquer coisa decorativa ou contínua | não | — |
 
 `prefers-reduced-motion: reduce`: sai o que desloca ou escala (subir, apertar, barras, traço da aba); ficam fade e troca de cor, que mostram o que mudou (`globals.css`).

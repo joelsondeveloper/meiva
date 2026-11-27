@@ -196,10 +196,27 @@
   --ease-movimento: cubic-bezier(0.65, 0, 0.35, 1);
   --animate-entrar: entrar 180ms var(--ease-saida) both;
   --animate-aparecer: aparecer 180ms ease both;
+  /* Gravando: o ponto pulsa devagar (trabalho em andamento, como o "Anotando…"). */
+  --animate-pulsar: pulsar 1.2s ease-in-out infinite alternate;
+  /* Troca de ícone do microfone: fade + leve escala, 150ms. */
+  --animate-trocar-icone: trocar-icone 150ms var(--ease-saida) both;
 
   @keyframes aparecer {
     from {
       opacity: 0;
+    }
+  }
+
+  @keyframes pulsar {
+    to {
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes trocar-icone {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
     }
   }
 
@@ -295,6 +312,7 @@
   @media (prefers-reduced-motion: reduce) {
     :root {
       --animate-entrar: aparecer 180ms ease both;
+      --animate-trocar-icone: aparecer 150ms ease both;
     }
     *,
     *::before,

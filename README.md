@@ -16,6 +16,10 @@ salvar, e a resposta seguinte ("80") chega com o contexto da conversa. Cada
 registro tem um botão **Desfazer**. O topo da tela mostra o saldo do dia; ao
 tocar, aparecem o saldo acumulado, quem está devendo e a lista do dia.
 
+Também dá para **falar**: o botão de microfone ao lado do campo grava até 1
+minuto, e o que foi dito aparece escrito no campo para a pessoa conferir,
+corrigir e tocar em Enviar. Nada é registrado direto do áudio.
+
 ## Stack
 
 - [Next.js](https://nextjs.org) 16 (App Router, TypeScript) e Tailwind CSS 4
@@ -39,6 +43,7 @@ Preencha o `.env.local` (ele está no `.gitignore` e **nunca** deve ser commitad
 | --- | --- | --- |
 | `OPENROUTER_API_KEY` | openrouter.ai → Keys | servidor |
 | `OPENROUTER_MODEL` | openrouter.ai → Models (id do modelo) | servidor |
+| `OPENROUTER_MODEL_TRANSCRICAO` | opcional; padrão `openai/whisper-large-v3-turbo` | servidor (áudio → texto) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API | servidor |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → API | reservado para o login (ainda não usado) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API | **só servidor** (ignora o RLS) |
@@ -83,7 +88,9 @@ proxy.ts (senha) ─▶ rate limit ─▶ agente (LLM via OpenRouter, function c
 - **API** (`src/app/api/`):
   - `POST /api/interpret`: roda o agente e devolve `{ resposta, resumo, lancamentosCriados }`;
   - `GET /api/lancamentos?data=`: lançamentos do dia e resumo;
-  - `POST /api/lancamentos/[id]/desfazer`: o botão Desfazer.
+  - `POST /api/lancamentos/[id]/desfazer`: o botão Desfazer;
+  - `POST /api/transcrever`: recebe a gravação (multipart, campo `audio`, até
+    2 MB) e devolve `{ texto }`. Só transcreve; quem envia é a pessoa.
 - **Lançamentos** (`src/lib/lancamentos/`): valores sempre em centavos. Cada
   lançamento tem `tipo` (entra ou sai do caixa) e `natureza` (venda, despesa,
   recebimento de fiado, aporte ou retirada pessoal). Venda fiado não entra no
@@ -97,8 +104,27 @@ proxy.ts (senha) ─▶ rate limit ─▶ agente (LLM via OpenRouter, function c
   de verdade.
 - **Rate limit** (`src/lib/rate-limit.ts`): `/api/interpret` aceita 60
   mensagens a cada 10 min por IP e 500 por dia no total (zera à meia-noite de
-  Brasília); o Desfazer, 30 a cada 10 min por IP. Os contadores ficam em
+  Brasília); o `/api/transcrever`, também 60 a cada 10 min por IP e 500 por
+  dia; o Desfazer, 30 a cada 10 min por IP. Os contadores ficam em
   memória, por instância do servidor.
+
+### Áudio e privacidade (LGPD)
+
+- **O áudio não é guardado em lugar nenhum.** A gravação vai do navegador para
+  `POST /api/transcrever`, fica só na memória do servidor durante a requisição,
+  é enviada ao OpenRouter (modelo `openai/whisper-large-v3-turbo`) só para
+  virar texto e é descartada. Não vai para disco, banco, storage nem log; os
+  logs de erro registram só a mensagem do erro, nunca o áudio ou o texto.
+- O texto transcrito também não é salvo pela rota: ele volta para o campo da
+  tela. Só vira registro se a pessoa tocar em Enviar (aí segue o caminho normal
+  do chat).
+- O provedor de transcrição recebe o áudio para processar. Confira a política
+  de retenção do OpenRouter e do provedor do modelo antes de ir para produção
+  com clientes reais, e cite isso na política de privacidade do app.
+- O microfone só liga depois que a pessoa toca no botão e permite no
+  navegador, e é desligado assim que a gravação termina.
+- Para comparar modelos com gravações reais: `npm run comparar-audio` (os
+  áudios ficam em `audios-teste/`, fora do git).
 
 ### Cores e acessibilidade
 
@@ -133,6 +159,7 @@ em memória (isso nunca liga em produção).
 | `npm run typecheck` | gera os tipos de rota (`next typegen`) e roda `tsc --noEmit` |
 | `npm test` | testes (Vitest, uma vez) |
 | `npm run test:watch` | testes em modo watch |
+| `npm run comparar-audio -- <modelo> ...` | transcreve as gravações de `audios-teste/` com modelos do OpenRouter e compara acerto, latência e custo (precisa de `ffmpeg`; gasta créditos) |
 | `npm run comparar -- <modelo> ...` | roda os cenários multi-turno de `tests/fixtures/cenarios.ts` no agente com modelos do OpenRouter (`RODADAS=N` repete; usa o `.env.local` e gasta créditos) |
 
 ## Testes
@@ -144,7 +171,7 @@ npm test
 Os testes não usam rede nem o `.env.local`: o modelo e o Supabase são
 substituídos por dados falsos (mocks) ou por um repositório em memória. Eles
 cobrem o agente e as ferramentas, as rotas da API (incluindo rate limit, senha
-e Desfazer), o saldo e o a receber, datas no fuso de Brasília, formatação em
+e Desfazer), a transcrição de áudio (com o serviço simulado) e os erros do microfone, o saldo e o a receber, datas no fuso de Brasília, formatação em
 reais, o histórico da conversa no `sessionStorage`, o sinal e o ícone de cada
 registro, as mensagens de erro e os design tokens (contraste e cores fixas).
 
@@ -159,6 +186,7 @@ src/
 │   ├── api/interpret/route.ts     # POST: agente (com rate limit)
 │   ├── api/lancamentos/route.ts   # GET: lançamentos e resumo do dia
 │   ├── api/lancamentos/[id]/desfazer/route.ts   # POST: Desfazer (soft delete)
+│   ├── api/transcrever/route.ts   # POST: áudio → texto (não guarda o áudio)
 │   ├── layout.tsx                 # fonte, metadados, theme-color e navegação
 │   ├── page.tsx                   # Conversa (chat com o agente)
 │   ├── resumo/page.tsx            # Resumo: caixa, entrou e saiu, fiados, últimas anotações
@@ -166,22 +194,23 @@ src/
 │   ├── not-found.tsx, error.tsx, global-error.tsx
 │   └── globals.css                # design tokens e base de acessibilidade
 ├── components/
-│   ├── chat/                      # conversa, bolhas, boas-vindas e painel Caixa
+│   ├── chat/                      # conversa, bolhas, boas-vindas, painel Caixa e microfone
 │   ├── navegacao/                 # barra de abas (celular) e barra lateral (computador)
 │   ├── lancamento/linha.tsx       # linha de lançamento com ícone, sinal e selo "a receber"
 │   └── pagina.tsx, marca.tsx, icones.tsx
 └── lib/
     ├── agente/                    # agente, prompt, ferramentas e repositório em memória
-    ├── chat/                      # chamadas da API, histórico e categoria de cada registro
+    ├── chat/                      # chamadas da API, histórico, categoria e regras da gravação
     ├── dados/                     # repositório das páginas Resumo/Fiados e períodos
     ├── interpreter/               # schemas Zod (e o interpretador antigo, ainda não removido)
     ├── lancamentos/               # repository Supabase, saldo, resumo, pessoa e tipos
     ├── llm/openrouter.ts          # cliente OpenAI apontando para o OpenRouter
+    ├── transcricao/               # áudio → texto (Whisper via OpenRouter) e limpeza da saída
     ├── supabase/                  # clientes do servidor e do navegador
     ├── rate-limit.ts
     └── datas.ts, formatacao.ts
 supabase/migrations/               # 0001: tabela lancamentos · 0002: natureza, pessoa e anulado_em
-scripts/comparar-modelos.ts
+scripts/comparar-modelos.ts, scripts/comparar-transcricao.ts
 tests/                             # Vitest (fixtures/ tem os cenários do agente)
 ```
 
