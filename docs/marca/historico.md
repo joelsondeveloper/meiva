@@ -123,3 +123,29 @@ Cinza, protanopia, deuteranopia, tritanopia, contraste (todos os pares passam, s
 ### Recomendação final
 
 Nome com **I de serifa curta (300)** em âmbar-tinta + ícone **G3b**. Para a Fase 4: um corte próprio do favicon de 16 px, com traço e hastes encaixados no pixel inteiro.
+
+## Fase 4: arquivos finais (27/11/2026)
+
+Aprovado: **nome com I de serifa curta (300) em âmbar-tinta + ícone G3b.** Guia em [guia.md](guia.md), arquivos em `final/`, folha em `final/folha-final.png`.
+
+- **Âmbar por fundo:** âmbar-tinta `#8f5d00` no claro, âmbar-claro `#f5c04f` sobre petróleo, `#f2b134` no escuro e no botão.
+- **Favicon de 16 px:** desenhado pixel a pixel. Testei dois cortes contra o vetor reduzido (ampliados 10×, sem suavizar):
+  - **A**, o M do limiar de 50% com hastes de 2 px: nítido e lê M.
+  - **B**, um V em escada: as contraformas viram ruído.
+  - **O vetor reduzido** borra, e o traço cai entre dois pixels.
+  
+  Ficou o A. O `favicon.svg` é o próprio desenho em grade de 16 (nítido em 16, 32 e 48), e o `favicon.ico` leva 16, 32 e 48 px tirados da mesma grade, ampliados sem suavizar.
+- **Ícones:**
+  - **"any":** quadrado com raio de 22% e símbolo em 600/1024.
+  - **maskable:** sangra até a borda, símbolo em 560/1024, dentro do círculo seguro de 80%.
+  - **apple-touch-icon:** quadrado cheio, porque o iOS arredonda sozinho.
+- **Compartilhamento:** fundo petróleo, nome e a frase que o app já usa ("O caixa da sua loja numa conversa."), em Atkinson Hyperlegible Next.
+- **Avatar do Instagram:** símbolo em 520/1024, para caber no recorte redondo.
+- **`public/`:** só `icon-192.png`, `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png` e `og-image.png`. No Next 16, `favicon.ico`, `icon.svg` e `apple-icon.png` são convenções de `src/app/`; um `favicon.ico` em `public/` conflitaria com o de `src/app/`. Esses três entram na Fase 5. Nada é referenciado pelo app ainda.
+- **Animação do cursor:** especificada no guia e não implementada. Proposta:
+  - o traço pisca só na tela de carregamento;
+  - o campo vazio usa o cursor do próprio sistema em âmbar (`caret-color`);
+  - com `prefers-reduced-motion`, o traço fica parado.
+  
+  A skill `emil-design-eng` não está instalada; a decisão seguiu as regras de movimento do design-system.
+- **Documentação:** DESIGN.md, docs/design-system.md e PRODUCT.md atualizados com o logo e a regra do âmbar (botão principal + I do nome + traço do ícone).
