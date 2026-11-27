@@ -90,3 +90,36 @@ Nome **B1 · haste 180 em âmbar-tinta** + ícone **G3 · sublinhado**. Segunda 
 - Teste com pessoas reais (5 segundos, idosos).
 - A lateral simulada usa a fonte do sistema, não a Atkinson.
 - O cursor animado fica para a Fase 4.
+
+## Exploração 3, a última (27/11/2026)
+
+Escolha da rodada 2: ícone **G3** (cursor sublinhado). Descartados G1, G2, G4, F, o âmbar-cobre e a haste larga. Folha de contato em `exploracao-3/folha-de-contato.png`, prévia em `exploracao-3/previa.html`, teste de pixel em `exploracao-3/png/`.
+
+### Nome: haste x I com serifa reta
+
+- **Base:** haste 180 em âmbar-tinta, igual à rodada 2.
+- **I com serifa reta:** haste de 180 (o mesmo peso), serifas retas e sem curva. Espessura da serifa: 130, um pouco menos que os braços do E (145), porque traço horizontal parece mais grosso que vertical do mesmo tamanho. Duas larguras: **curta (300)** e **média (370)**. A Lexend tem I com serifa reta no próprio alfabeto (407 de largura, serifa de 143), então o I curto pertence à família e não parece de outra fonte.
+- **Kerning:**
+  - **E→I:** com a haste eram 100. Com serifa, o braço do E e a serifa ficam frente a frente na mesma altura e quase se emendam numa barra só, então o espaço subiu para 128 (curta) e 132 (média), perto dos 133 que a Lexend usa entre E e I.
+  - **I→v:** 70 e 66. A serifa de baixo entra sob o braço aberto do v.
+  - **M→E:** igual à rodada 2.
+- **Resultado:** os dois I com serifa leem "MEIva" sem ambiguidade em 72, 28 e 18 px, também em cinza. A haste lisa continua parecida com o l da Lexend 700 nos tamanhos pequenos.
+
+### Ícone G3: proporção do traço
+
+| Versão | Traço (largura × espessura, distância do M) | 16 px (favicon) | 1 cor |
+| --- | --- | --- | --- |
+| G3a | 702 × 120, a 110 (rodada 2) | linha fraca, meio apagada | some quase toda |
+| G3b | 702 × 165, a 100 | linha de 1 px cheia | aparece |
+| G3c | 540 × 165, a 100 | aparece, mas curta, parece acento | aparece |
+| G3d | 702 × 200, a 120 | a mais forte | aparece, mas pesa |
+
+O teste de pixel renderiza o SVG em 16 px de verdade e amplia sem suavizar. No ícone de app em 16 px (com a margem da zona segura) o M tem uns 6 px e tudo borra; esse tamanho não é uso real. O 16 px que importa é o favicon.
+
+### Bateria
+
+Cinza, protanopia, deuteranopia, tritanopia, contraste (todos os pares passam, sem exceção), lateral do computador no claro e no escuro, topo do celular, aba do navegador e tela inicial, para a haste e para a serifa curta.
+
+### Recomendação final
+
+Nome com **I de serifa curta (300)** em âmbar-tinta + ícone **G3b**. Para a Fase 4: um corte próprio do favicon de 16 px, com traço e hastes encaixados no pixel inteiro.
