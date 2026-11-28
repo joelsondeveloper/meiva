@@ -5,6 +5,7 @@ import type { LancamentoSalvo } from "@/lib/lancamentos/tipos";
 import { IconeAlerta, IconeDesfazer } from "@/components/icones";
 import { LinhaLancamento } from "@/components/lancamento/linha";
 import { Valor } from "@/components/valor";
+import { TextoComNumeros } from "@/components/texto-com-numeros";
 
 /** O texto da MEIva não fica em bolha: só a pessoa tem bolha (não é um mensageiro). */
 const TEXTO_MEIVA = "mr-auto w-full max-w-[36rem]";
@@ -32,7 +33,9 @@ export function BolhaMensagem({ mensagem, desfazendo = null, onDesfazer, caixaAg
     return (
       <div className="ml-auto max-w-[85%] rounded-apoio rounded-br-md bg-primaria px-5 py-3 text-sobre-primaria sm:max-w-[28rem]">
         <span className="sr-only">Você: </span>
-        <p className="break-words whitespace-pre-wrap">{mensagem.texto}</p>
+        <p className="break-words whitespace-pre-wrap">
+          <TextoComNumeros>{mensagem.texto}</TextoComNumeros>
+        </p>
       </div>
     );
   }
@@ -42,7 +45,7 @@ export function BolhaMensagem({ mensagem, desfazendo = null, onDesfazer, caixaAg
       <div className={`${TEXTO_MEIVA} flex flex-col gap-3`}>
         <p className="break-words whitespace-pre-wrap">
           <span className="sr-only">MEIva: </span>
-          {mensagem.texto}
+          <TextoComNumeros>{mensagem.texto}</TextoComNumeros>
         </p>
         {mensagem.lancamentos.length > 0 && (
           <Comprovante

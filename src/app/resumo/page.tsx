@@ -68,7 +68,7 @@ async function ConteudoResumo({ searchParams }: Pick<PageProps<"/resumo">, "sear
           <h2 id="caixa-titulo" className="text-lg font-bold text-heroi-suave">
             Dinheiro no caixa
           </h2>
-          <p className="mt-1 text-5xl font-bold lg:text-[3.5rem] lg:leading-[1.1]">
+          <p className="mt-1 text-5xl font-bold lg:text-[3rem]">
             <Valor centavos={Math.abs(caixa.saldoAcumulado)} sinal={caixa.saldoAcumulado < 0 ? "−" : ""} destaque />
           </p>
           <p className="mt-2 text-heroi-suave">Tudo que entrou menos tudo que saiu, desde o começo.</p>
@@ -209,7 +209,8 @@ function Barra({
           <Icone className={`size-5 ${texto}`} />
           {rotulo}
         </dt>
-        <dd className={`text-2xl font-bold ${texto}`}>
+        {/* Zero neutro: "R$ 0,00" em cinza; a cor só aparece quando há valor. */}
+        <dd className={`text-2xl font-bold ${valor > 0 ? texto : "text-texto-suave"}`}>
           <Valor centavos={valor} sinal={valor > 0 ? sinal : ""} />
         </dd>
       </div>
