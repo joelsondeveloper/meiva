@@ -30,8 +30,8 @@ export function Navegacao() {
         aria-label="Páginas"
         className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col gap-8 border-r border-borda bg-superficie px-4 py-6 lg:flex"
       >
-        <Link href="/" className="flex min-h-12 items-center rounded-lg px-3">
-          <Marca className="text-3xl" />
+        <Link href="/" className="flex min-h-12 items-center rounded-lg px-4">
+          <Marca className="h-6" />
           <span className="sr-only">: início</span>
         </Link>
         <ul className="flex flex-col gap-2">
