@@ -6,7 +6,7 @@ Fonte da verdade das cores: `src/app/globals.css`. Este documento explica o porq
 
 - **Adjetivos:** parceira, clara, confiável.
 - **Equilíbrio:** fácil o bastante para uma pessoa idosa ou iniciante usar sem pedir ajuda, com um toque moderno que não afaste os mais jovens. Simples não é infantil; moderno não é cheio de efeito.
-- **Logo (aprovado em 27/11/2026):** o nome "MEIva" com "MEI" negrito e "va" normal, e o **I desenhado como cursor de texto** (serifas retas e curtas) em âmbar. Ícone: o M claro com o traço âmbar do cursor sublinhado, sobre petróleo. As letras são desenhos, não texto digitado. Frase da marca: "O caixa do seu negócio numa conversa." Regras, arquivos, respiro e tamanho mínimo: [docs/marca/guia.md](marca/guia.md). A troca no app é a Fase 5; até lá o app ainda mostra o wordmark antigo e o favicon "M" (`src/app/icon.svg`).
+- **Logo (aprovado em 27/11/2026):** o nome "MEIva" com "MEI" negrito e "va" normal, e o **I desenhado como cursor de texto** (serifas retas e curtas) em âmbar. Ícone: o M claro com o traço âmbar do cursor sublinhado, sobre petróleo. As letras são desenhos, não texto digitado. Frase da marca: "O caixa do seu negócio numa conversa." Regras, arquivos, respiro e tamanho mínimo: [docs/marca/guia.md](marca/guia.md). No app: `<Marca>` (`src/components/marca.tsx`, cores `--cor-marca` e `--cor-marca-cursor`) na lateral (24px de altura) e no topo do celular (20px); favicon, ícone e apple-icon em `src/app/`, manifesto em `src/app/manifest.ts`, ícones 192/512 e `og-image.png` em `public/`. O proxy libera só esses arquivos sem senha (`ARQUIVOS_PUBLICOS` em `src/proxy.ts`).
 
 ## Cores (paleta A, "Petróleo e Âmbar")
 

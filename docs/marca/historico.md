@@ -149,3 +149,17 @@ Aprovado: **nome com I de serifa curta (300) em âmbar-tinta + ícone G3b.** Gui
   
   A skill `emil-design-eng` não está instalada; a decisão seguiu as regras de movimento do design-system.
 - **Documentação:** DESIGN.md, docs/design-system.md e PRODUCT.md atualizados com o logo e a regra do âmbar (botão principal + I do nome + traço do ícone).
+
+## Fase 5: aplicação no app (28/11/2026)
+
+- **Antes de aplicar:** `feat/marca` atualizada com o `main` (entrada por voz e campo/escala), sem conflito.
+- **Frase da marca:** "O caixa do seu negócio numa conversa." em vez de "da sua loja". Regenerada a og-image.
+- **Logo:** `<Marca>` virou SVG em curvas, gerado do arquivo final. Cores por token: `--cor-marca` (petróleo no claro, `#edf0ee` no escuro) e `--cor-marca-cursor` (âmbar-tinta no claro, âmbar no escuro). Altura de 24px na lateral e 20px no topo do celular. O link da lateral passou de `px-3` para `px-4`, para a haste do M alinhar com a coluna dos ícones da navegação.
+- **Ícones e manifesto:**
+  - `favicon.ico`, `icon.svg` (a grade de 16 px) e `apple-icon.png` em `src/app/`;
+  - `manifest.ts` com ícones 192 e 512 (any e maskable), `display: standalone`, `theme_color` = superfície e `background_color` = fundo;
+  - teste de tema confere as duas cores do manifesto contra os tokens.
+- **Compartilhamento:** `metadataBase` vem das variáveis de sistema da Vercel (só leitura), com `og:image` e `twitter:card` de 1200 × 630.
+- **Proxy:** lista exata de 9 arquivos públicos, liberados sem senha. Páginas e `/api` continuam com 401 (testes automatizados e curl em produção local).
+- **Revisão:** design-taste e impeccable (polish), só na marca e na navegação. O detector não acusou nada; o único ajuste foi o alinhamento da lateral.
+- **Achado no caminho:** o servidor de desenvolvimento serviu um CSS velho (cache do Turbopack em `.next/dev`) depois de um `next build` na mesma pasta, e o logo apareceu preto. Apagar `.next/dev` resolveu. O build de produção sempre esteve certo.
