@@ -6,6 +6,8 @@
  *
  * - primaria (petróleo): marca, navegação, links e seleção. Confiança e calma.
  * - acento (âmbar): SÓ o botão principal de cada tela e pontos de atenção.
+ * - marca / marca-cursor: letras do logo e o I-cursor em âmbar (docs/marca/guia.md).
+ *   O âmbar do logo muda com o fundo: âmbar-tinta no claro, âmbar no escuro.
  * - entrada (verde), saida (tijolo), fiado (azul): semânticas, sempre junto de
  *   ícone, sinal ou texto, nunca só pela cor.
  *
@@ -41,6 +43,10 @@
   --cor-acento: #f2b134;
   --cor-acento-forte: #e09a14;
   --cor-sobre-acento: #1b2422;
+
+  /* Logo: letras em petróleo e o I-cursor em âmbar-tinta (5,1:1 no papel; o âmbar do botão daria 1,7:1). */
+  --cor-marca: #0d5c57;
+  --cor-marca-cursor: #8f5d00;
 
   --cor-foco: #0d5c57;
 
@@ -79,6 +85,10 @@
     --cor-acento-forte: #f6c45e;
     --cor-sobre-acento: #1b2422;
 
+    /* Logo no escuro: letras claras e o I no âmbar do botão (9,3:1). */
+    --cor-marca: #edf0ee;
+    --cor-marca-cursor: #f2b134;
+
     --cor-foco: #5cc2b7;
 
     --cor-heroi: #0f3f3b;
@@ -113,6 +123,8 @@
   --color-acento: var(--cor-acento);
   --color-acento-forte: var(--cor-acento-forte);
   --color-sobre-acento: var(--cor-sobre-acento);
+  --color-marca: var(--cor-marca);
+  --color-marca-cursor: var(--cor-marca-cursor);
   --color-foco: var(--cor-foco);
   --color-heroi: var(--cor-heroi);
   --color-sobre-heroi: var(--cor-sobre-heroi);

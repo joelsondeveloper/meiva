@@ -43,7 +43,7 @@ Alguém que nunca viu o app precisa achar em até 5 segundos:
 
 ## Compromissos de marca
 
-- Nome **MEIva**; wordmark "MEI" 700 + "va" 400; favicon "M".
+- Nome **MEIva**; "MEI" negrito + "va" normal, com o I desenhado como cursor de texto em âmbar; ícone e favicon: o M com o cursor sublinhado ([guia da marca](docs/marca/guia.md)).
 - Adjetivos: **parceira, clara, confiável**. Simples não é infantil; moderno não é cheio de efeito.
 - Textos em pt-BR, frases curtas, voz ativa, palavras do dia a dia ("venda", "gasto", "fiado", "recebimento"). Erros dizem o que fazer, sem pedir desculpa. Estado vazio convida à ação.
 

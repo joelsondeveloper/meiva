@@ -6,7 +6,7 @@ Fonte da verdade das cores: `src/app/globals.css`. Este documento explica o porq
 
 - **Adjetivos:** parceira, clara, confiável.
 - **Equilíbrio:** fácil o bastante para uma pessoa idosa ou iniciante usar sem pedir ajuda, com um toque moderno que não afaste os mais jovens. Simples não é infantil; moderno não é cheio de efeito.
-- **Wordmark:** **MEI** em 700 + va em 400, na cor primária. Favicon: "M" claro sobre um quadrado petróleo (`src/app/icon.svg`).
+- **Logo (aprovado em 27/11/2026):** o nome "MEIva" com "MEI" negrito e "va" normal, e o **I desenhado como cursor de texto** (serifas retas e curtas) em âmbar. Ícone: o M claro com o traço âmbar do cursor sublinhado, sobre petróleo. As letras são desenhos, não texto digitado. Frase da marca: "O caixa do seu negócio numa conversa." Regras, arquivos, respiro e tamanho mínimo: [docs/marca/guia.md](marca/guia.md). No app: `<Marca>` (`src/components/marca.tsx`, cores `--cor-marca` e `--cor-marca-cursor`) na lateral (24px de altura) e no topo do celular (20px); favicon, ícone e apple-icon em `src/app/`, manifesto em `src/app/manifest.ts`, ícones 192/512 e `og-image.png` em `public/`. O proxy libera só esses arquivos sem senha (`ARQUIVOS_PUBLICOS` em `src/proxy.ts`).
 
 ## Cores (paleta A, "Petróleo e Âmbar")
 
@@ -18,7 +18,7 @@ Fonte da verdade das cores: `src/app/globals.css`. Este documento explica o porq
 | `texto-suave` | `#4a5552` | `#a9b4b0` | legendas e apoio (7,1:1 e 8,3:1) |
 | `primaria` | `#0d5c57` | `#5cc2b7` | **petróleo**: marca, navegação, aba ativa, links, bolha do usuário |
 | `heroi` / `sobre-heroi` | `#0d5c57` / `#ffffff` | `#0f3f3b` / `#edf0ee` | bloco "Dinheiro no caixa" do Resumo (7,8:1 e 10,2:1) |
-| `acento` | `#f2b134` | `#f2b134` | **âmbar**: só o botão principal de cada tela, com texto escuro (8,4:1) |
+| `acento` | `#f2b134` | `#f2b134` | **âmbar**: botão principal de cada tela, com texto escuro (8,4:1); na marca, o I do nome e o traço do ícone (ver abaixo) |
 | `entrada` | `#1d7343` | `#63c98d` | dinheiro que entrou |
 | `saida` | `#b0382a` | `#f2907f` | dinheiro que saiu (tijolo suave, não vermelho de alarme) |
 | `fiado` | `#2d5b9a` | `#8fb5ee` | a receber; azul, para não competir com o âmbar do botão |
@@ -29,7 +29,8 @@ Também existem as variações `-forte` (hover), `-suave` (fundos de ícone e de
 
 **Regras.**
 - Uma cor nunca vem sozinha: sempre com ícone, sinal (+/−) ou texto.
-- O âmbar só aparece no botão principal (um por tela). Nada de âmbar decorativo.
+- O âmbar aparece em três lugares e só neles: o **botão principal** (um por tela), o **I do nome** e o **traço do ícone**. Nada de âmbar decorativo.
+- Na marca, o tom do âmbar muda com o fundo para manter o contraste: **âmbar-tinta `#8f5d00`** no claro (5,1:1), **âmbar-claro `#f5c04f`** sobre petróleo (4,7:1), **âmbar `#f2b134`** no escuro (9,3:1). Essas duas variações são só da marca, não do botão.
 - O fiado não tem sinal "+": ele ainda não entrou no caixa. Ganha o selo "a receber".
 - O texto principal tem 7:1 ou mais, e os demais textos 4,5:1 ou mais, nos dois temas. `tests/tema.test.ts` confere isso.
 - Sem gradiente, sem sombra decorativa, sem brilho.
@@ -106,6 +107,8 @@ O movimento só aparece em resposta a uma ação da pessoa e dura pouco.
 | Qualquer coisa decorativa ou contínua | não | — |
 
 `prefers-reduced-motion: reduce`: sai o que desloca ou escala (subir, apertar, barras, traço da aba); ficam fade e troca de cor, que mostram o que mudou (`globals.css`).
+
+Proposta para a semana 2 (não implementada): o traço do ícone pisca na tela de carregamento (a única animação contínua, porque informa "estou esperando"), e o campo vazio usa o cursor do próprio sistema pintado de âmbar (`caret-color`). Detalhes e o comportamento com `prefers-reduced-motion` no [guia da marca](marca/guia.md#animação-do-cursor-opcional-fica-para-a-semana-2).
 
 ## Textos
 

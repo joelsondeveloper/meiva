@@ -43,6 +43,7 @@ const TOKENS = [
   "heroi", "sobre-heroi", "heroi-suave",
   "entrada", "entrada-suave", "saida", "saida-suave",
   "fiado", "fiado-suave", "erro", "erro-suave",
+  "marca", "marca-cursor",
 ];
 
 /** Texto principal: 7:1 (AAA), que o público mais velho agradece. */
@@ -59,6 +60,8 @@ const PARES_TEXTO: [string, string][] = [
   ...["fundo", "superficie"].flatMap((f): [string, string][] =>
     ["texto-suave", "primaria", "entrada", "saida", "fiado", "erro"].map((t) => [t, f]),
   ),
+  // Logo: as letras e o I-cursor são lidos como texto ("MEIva"), na lateral (superfície) e nas páginas (fundo).
+  ...["fundo", "superficie"].flatMap((f): [string, string][] => [["marca", f], ["marca-cursor", f]]),
   ["sobre-primaria", "primaria"],
   ["sobre-primaria", "primaria-forte"],
   ["sobre-acento", "acento"],
@@ -139,8 +142,13 @@ describe("acessibilidade: texto de no mínimo 16px e entrelinha ≥ 1.4", () => 
 });
 
 const LAYOUT = join(RAIZ, "src/app/layout.tsx");
-/** Única exceção: a cor da barra do navegador (meta theme-color) em layout.tsx. */
+const MANIFESTO = join(RAIZ, "src/app/manifest.ts");
+/**
+ * Exceções (meta tag e manifesto não leem CSS): a cor da barra do navegador
+ * (theme-color) em layout.tsx e as duas cores do manifesto do app.
+ */
 const LINHA_COR_BARRA = /^(claro|escuro): "(#[0-9a-fA-F]{6})",?$/;
+const LINHA_COR_MANIFESTO = /^(theme_color|background_color): "(#[0-9a-fA-F]{6})",?$/;
 
 describe("componentes sem cor fixa", () => {
   const arquivos = arquivosTsx(join(RAIZ, "src"));
@@ -150,6 +158,7 @@ describe("componentes sem cor fixa", () => {
     const ofensas = linhas
       .map((linha, i) => ({ linha: i + 1, texto: linha.trim() }))
       .filter(({ texto }) => !(caminho === LAYOUT && LINHA_COR_BARRA.test(texto)))
+      .filter(({ texto }) => !(caminho === MANIFESTO && LINHA_COR_MANIFESTO.test(texto)))
       .filter(({ texto }) => PALETA_TAILWIND.test(texto) || COR_LITERAL.test(texto));
     expect(ofensas).toEqual([]);
   });
@@ -165,6 +174,22 @@ describe("componentes sem cor fixa", () => {
     expect(cores).toEqual({
       claro: TEMAS.claro.superficie,
       escuro: TEMAS.escuro.superficie,
+    });
+  });
+});
+
+describe("manifesto do app", () => {
+  test("theme_color = --cor-superficie e background_color = --cor-fundo (tema claro)", () => {
+    const cores = Object.fromEntries(
+      readFileSync(MANIFESTO, "utf8")
+        .split("\n")
+        .map((l) => l.trim().match(LINHA_COR_MANIFESTO))
+        .filter((m) => m !== null)
+        .map((m) => [m[1], m[2].toLowerCase()]),
+    );
+    expect(cores).toEqual({
+      theme_color: TEMAS.claro.superficie,
+      background_color: TEMAS.claro.fundo,
     });
   });
 });
