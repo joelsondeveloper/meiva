@@ -2,7 +2,7 @@
 
 Resumo para quem vai mexer na interface. As regras completas estão em [docs/design-system.md](docs/design-system.md).
 
-- **Marca:** parceira, clara, confiável. Simples sem ser infantil; moderna sem efeito. Logo: o I de "MEIva" é o cursor de texto (I com serifas curtas, em âmbar); ícone: o M com o cursor sublinhado. Guia: [docs/marca/guia.md](docs/marca/guia.md).
+- **Marca:** parceira, clara, confiável. Simples sem ser infantil; moderna sem efeito. Logo: o I de "MEIva" é o cursor de texto (I com serifas curtas, em âmbar); ícone: o M com o cursor sublinhado. Frase: "O caixa do seu negócio numa conversa." Guia: [docs/marca/guia.md](docs/marca/guia.md).
 - **Cores:** petróleo `#0d5c57` (marca e navegação), âmbar `#f2b134` (botão principal, I do nome e traço do ícone; no logo, âmbar-tinta `#8f5d00` no claro e âmbar-claro `#f5c04f` no petróleo), verde (entrou), tijolo (saiu), azul (fiado, a receber), fundo "papel de caixa" `#f2f4f2`. O bloco herói do Resumo (`heroi`) é o único bloco de cor cheia. Tokens em `src/app/globals.css`; nunca use cor fixa nos componentes (o teste barra).
 - **Tipografia:** Atkinson Hyperlegible Next no texto, corpo de 18px, com reserva de medidas ajustadas (o texto não pula ao carregar). **Valores em reais em Lexend** (zero sem corte), só eles: todo dinheiro passa por `<Valor>` (classe `valor`, `--fonte-valor`). A Lexend não tem algarismos tabulares: valores alinhados à direita continuam alinhados pela vírgula, mas números de larguras diferentes não formam coluna perfeita.
 - **Navegação:** Conversa, Resumo, Fiados, nessa ordem e com esses nomes. Barra de abas embaixo no celular; barra lateral no computador.

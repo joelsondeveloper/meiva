@@ -10,6 +10,8 @@ Versão 1, aprovada em 27/11/2026. Os arquivos estão em [`docs/marca/final/`](f
 - **Clara:** o nome se lê de primeira, também em tamanho pequeno. O I com serifa não se confunde com l.
 - **Confiável:** formas chapadas, sem efeito, em petróleo, uma cor que não é o azul de banco nem o verde de dinheiro.
 
+**Frase da marca:** "O caixa do seu negócio numa conversa." Aparece no título da página, nas tags de compartilhamento e na imagem de compartilhamento (`public/og-image.png`). "Negócio" e não "loja": o público inclui barraca, delivery e fábrica pequena.
+
 ## O logo
 
 | Peça | Arquivo | Quando usar |
@@ -69,7 +71,9 @@ Abaixo de 18 px de altura, use o símbolo ou o favicon, não o nome.
 - **Interface:** Atkinson Hyperlegible Next (texto) e Lexend (só os valores em reais). Ver [docs/design-system.md](../design-system.md).
 - **Licenças:** Lexend e Atkinson Hyperlegible Next, ambas **SIL Open Font License 1.1**. A OFL permite usar e modificar os contornos num logo; o logo em curvas não é a fonte e não precisa levar a licença.
 
-## Animação do cursor (opcional, ainda não implementada)
+## Animação do cursor (opcional, fica para a semana 2)
+
+Decisão de 28/11/2026: **não implementar agora.** A especificação fica registrada aqui para a semana 2.
 
 O movimento na MEIva só aparece em resposta a uma ação e dura pouco ([design-system](../design-system.md#movimento)). O cursor é a única exceção que proponho, porque ele **informa**: diz "estou esperando". A skill `emil-design-eng` não está instalada neste ambiente; a proposta segue as regras de movimento do próprio design-system.
 

@@ -175,8 +175,8 @@ def social(d_logo, d_icone):
 html, body {{ margin:0; width:1200px; height:630px; background:{COR['petroleo']}; }}
 .c {{ position:absolute; left:96px; top:0; bottom:0; display:flex; flex-direction:column; justify-content:center; gap:44px; }}
 img {{ height:150px; width:auto; align-self:flex-start; }}
-p {{ margin:0; font:400 52px/1.25 Atk, sans-serif; color:{COR['texto_escuro']}; max-width:900px; }}
-</style></head><body><div class="c"><img src="{logo}" alt=""><p>O caixa da sua loja numa conversa.</p></div></body></html>"""
+p {{ margin:0; font:400 52px/1.25 Atk, sans-serif; color:{COR['texto_escuro']}; max-width:1020px; }}
+</style></head><body><div class="c"><img src="{logo}" alt=""><p>O caixa do seu negócio numa conversa.</p></div></body></html>"""
     html = os.path.join(d_soc, "_og.html")
     escrever(html, og)
     render(html, os.path.join(d_soc, "og-image-1200x630.png"), width=1200, height=630)
