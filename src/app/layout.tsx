@@ -25,19 +25,52 @@ const lexend = Lexend({
   weight: ["400", "700"],
 });
 
+const TITULO = "MEIva: o caixa do seu negócio numa conversa";
+const DESCRICAO_CURTA = "Anote vendas, gastos e fiado escrevendo do seu jeito. A MEIva organiza o caixa do seu MEI.";
+
+/**
+ * Endereço completo do site, exigido pelas tags de compartilhamento (og:image
+ * precisa de URL absoluta). Na Vercel vem das variáveis de sistema (domínio de
+ * produção, ou o da prévia); no computador, localhost.
+ */
+const URL_DO_SITE = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
+
+/** Imagem de compartilhamento (public/og-image.png), liberada sem senha no proxy. */
+const IMAGEM_COMPARTILHAMENTO = {
+  url: "/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "MEIva: o caixa do seu negócio numa conversa.",
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(URL_DO_SITE),
   title: {
-    default: "MEIva: o caixa da sua loja numa conversa",
+    default: TITULO,
     template: "%s · MEIva",
   },
   description:
     "Anote vendas, gastos e fiado escrevendo do seu jeito, como numa conversa. A MEIva organiza o caixa do seu MEI.",
   applicationName: "MEIva",
+  // Nome embaixo do ícone quando a pessoa adiciona o app à tela inicial do iPhone.
+  appleWebApp: { title: "MEIva" },
   openGraph: {
-    title: "MEIva: o caixa da sua loja numa conversa",
-    description: "Anote vendas, gastos e fiado escrevendo do seu jeito. A MEIva organiza o caixa do seu MEI.",
+    title: TITULO,
+    description: DESCRICAO_CURTA,
+    siteName: "MEIva",
     locale: "pt_BR",
     type: "website",
+    images: [IMAGEM_COMPARTILHAMENTO],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITULO,
+    description: DESCRICAO_CURTA,
+    images: [IMAGEM_COMPARTILHAMENTO],
   },
   formatDetection: { telephone: false },
 };
