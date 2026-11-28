@@ -38,18 +38,24 @@ Também existem as variações `-forte` (hover), `-suave` (fundos de ícone e de
 
 - **Texto:** [Atkinson Hyperlegible Next](https://www.brailleinstitute.org/freefont/), do Braille Institute, desenhada para baixa visão (I, l e 1 diferentes). Pesos 400 e 700.
 - **Valores em reais:** [Lexend](https://fonts.google.com/specimen/Lexend), pesos 400 e 700, só nos números de dinheiro (`<Valor>`, `--fonte-valor`). Escolhida pelo dono do produto em 26/11/2026 para testar com pessoas reais: o zero sem corte é mais familiar que o zero cortado da Atkinson.
+- **Números dentro de frases** ("50 reais", "30 de luz", nos chips de exemplo, nas mensagens e nas descrições do comprovante): também na Lexend, sem o zero cortado, pelo componente `<TextoComNumeros>` (classe `numero`). O resto da frase continua na Atkinson.
 - **Algarismos:** a Lexend servida pelo Google Fonts **não tem algarismos tabulares** (features: `ccmp dnom frac liga locl numr`; medido: "1111" = 89,8px e "8888" = 95,8px em 40px). A classe `valor` mantém `tabular-nums` para o caso de voltar à Atkinson. Na prática, valores alinhados à direita com centavos iguais alinham pela vírgula; só a parte inteira varia de largura.
-- **Escala** (o corpo nunca fica abaixo de 18px; o menor texto da tela é 18px):
+- **Escala em rem.** O tamanho da raiz é `calc(100% × --escala-texto)` (`globals.css`); `--escala-texto` vale 1 por padrão. Todo tamanho de letra, espaçamento e alvo de toque está em rem, então trocar a escala (os presets de tamanho de letra da próxima tela de configurações) aumenta ou diminui tudo junto. Os 100% respeitam o tamanho de letra escolhido no navegador. Media queries em rem não mudam com a escala.
+- **Escala** (na escala 1; o corpo nunca fica abaixo de 18px e nada fica abaixo de 16px):
 
-| Classe | Tamanho / entrelinha | Uso |
-| --- | --- | --- |
-| `text-base` | 18px / 1.55 | corpo, legendas |
-| `text-lg` | 20px / 1.5 | botões, rótulos de destaque |
-| `text-xl` | 22px / 1.45 | títulos de bloco |
-| `text-2xl` | 26px / 1.4 | nome da pessoa no Fiados |
-| `text-3xl` | 32px / 1.25 | título da página (celular) |
-| `text-4xl` | 40px / 1.2 | título da página (computador), valores secundários |
-| `text-5xl` | 48px / 1.15 | o número principal da tela |
+| Classe | Antes (26/11) | Agora (27/11) | Uso |
+| --- | --- | --- | --- |
+| `text-base` | 18px / 1.55 | 18px / 1.55 | corpo, legendas, campo, chips de exemplo |
+| `text-lg` | 20px / 1.5 | 20px / 1.5 | botões, rótulos de destaque |
+| `text-xl` | 22px / 1.45 | 22px / 1.45 | títulos de bloco |
+| `text-2xl` | 26px / 1.4 | 24px / 1.35 | nome da pessoa no Fiados, marca no celular |
+| `text-3xl` | 32px / 1.25 | 28px / 1.25 | título da página (celular e computador), valor do "Caixa de hoje" |
+| `text-4xl` | 40px / 1.2 | 34px / 1.2 | valores secundários do Resumo |
+| `text-5xl` | 48px / 1.15 | 42px / 1.15 | o número principal da tela (48px no Resumo do computador) |
+
+**Por que reduzir (27/11/2026).** No celular, o título de 32px, o saldo de 40px no painel e os chips de 20px com 56px de altura competiam com a conversa, que é o que importa. Os degraus de cima desceram; o corpo continua em 18px. Outras reduções: chips de exemplo em `text-base`, 48px de altura e 8px entre eles; título da página em `text-3xl` também no computador (antes `text-4xl`); descrição da página em `text-base`; cabeçalhos com menos respiro em cima e embaixo. Comparação em `docs/screenshots/escala/` (antes × depois, 320/360/390 e 1280px, claro e escuro).
+
+Pisos que continuam valendo: corpo e campos ≥ 16px, entrelinha do corpo ≥ 1.5, contraste ≥ 4.5:1 (`tests/tema.test.ts`), alvos de toque ≥ 44px (48px nas ações principais).
 
 - Frases em caixa normal. Nada de CAIXA ALTA, eyebrow acima de título ou palavra destacada no meio do título.
 
@@ -61,7 +67,25 @@ Também existem as variações `-forte` (hover), `-suave` (fundos de ícone e de
 - **Ousadia num lugar só por tela:** na Conversa, o comprovante; no Resumo, o bloco petróleo cheio com "Dinheiro no caixa"; nos Fiados, o bloco com a faixa azul da conta em aberto. O resto fica quieto.
 - **Hierarquia sem cartões iguais:** um bloco de destaque por tela; listas são linhas com divisória direto no fundo.
 - **Fiados no computador:** sem ninguém escolhido, o detalhe abre na maior dívida.
-- **Alvos de toque:** 48px ou mais (`min-h-12`); botões principais com 56px (`min-h-14`).
+- **Alvos de toque:** 48px ou mais (`min-h-12`); botões principais com 56px (`min-h-14`), exceto o botão redondo do campo de escrita (48px, ao lado de um campo de 48px).
+
+## Campo de escrita (Conversa)
+
+- **Campo arredondado** (`rounded-[1.5rem]`), multilinha: começa com 1 linha (48px, a altura do botão), cresce até 4 linhas e depois rola por dentro. Fonte de 18px (nunca abaixo de 16px, senão o iOS dá zoom ao focar).
+- **Um botão só**, redondo, de 48px, sempre no mesmo lugar:
+
+| Estado | Botão | Rótulo (aria-label) |
+| --- | --- | --- |
+| Campo vazio | microfone, contorno petróleo | "Gravar áudio" |
+| Com texto | enviar, âmbar cheio (o botão principal da tela) | "Enviar mensagem" |
+| Gravando | quadrado + "Parar", petróleo cheio (o "Parar" escrito some abaixo de 360px) | "Parar gravação" |
+
+- Nunca fica "desabilitado apagado": vazio ele já é o microfone. Enquanto espera (permissão, transcrição, resposta), mantém a cor e avisa com `aria-busy` e o cursor de espera.
+- **Gravando:** o campo mostra "Gravando… 0:12" no lugar do texto (ponto pulsando + texto) e, nos últimos 10 s, "Termina sozinho em X s". O texto já escrito não se perde.
+- **Erros do microfone** e o pedido de permissão aparecem logo acima do campo.
+- **Enter:** no computador envia (Shift+Enter quebra a linha); no celular (`pointer: coarse`) Enter quebra a linha e o envio é só pelo botão.
+- **Teclado aberto** (campo com foco, no celular): a barra de abas sai e o campo passa a respeitar `env(safe-area-inset-bottom)` sozinho (`--folga-campo`).
+- Sem verde de mensageiro e sem rabinho de balão: só os tokens deste documento.
 
 ## Movimento
 
@@ -78,7 +102,7 @@ O movimento só aparece em resposta a uma ação da pessoa e dura pouco.
 | Trocar período no Resumo | sim | as barras mudam de escala (transform) em 250ms, ease-in-out |
 | Esperando resposta | sim | três pontos pulsando (trabalho em andamento) |
 | Gravando áudio | sim | ponto pulsando devagar (opacidade, 1,2s) ao lado de "Gravando 0:07"; parado com reduced-motion |
-| Microfone ↔ parar | sim | o ícone troca com fade + escala de 0.8 para 1, 150ms ease-out; só fade com reduced-motion |
+| Botão do campo (microfone ↔ enviar ↔ parar) | sim | cor e ícone trocam em 150ms ease-out (fade + escala de 0.8 para 1); só fade e cor com reduced-motion |
 | Qualquer coisa decorativa ou contínua | não | — |
 
 `prefers-reduced-motion: reduce`: sai o que desloca ou escala (subir, apertar, barras, traço da aba); ficam fade e troca de cor, que mostram o que mudou (`globals.css`).

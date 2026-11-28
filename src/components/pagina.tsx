@@ -19,14 +19,14 @@ export function Pagina({
   children: ReactNode;
 }) {
   return (
-    <main className="mx-auto w-full max-w-[75rem] px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-[calc(var(--altura-abas)+2rem)] sm:px-6 lg:px-10 lg:pt-10 lg:pb-12">
+    <main className="mx-auto w-full max-w-[75rem] px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-[calc(var(--altura-abas)+2rem)] sm:px-6 lg:px-10 lg:pt-8 lg:pb-12">
       <div className="flex min-h-12 items-center lg:hidden">
         <Marca />
       </div>
-      <header className="flex flex-col gap-4 pt-3 pb-6 sm:flex-row sm:items-end sm:justify-between lg:pt-0 lg:pb-8">
+      <header className="flex flex-col gap-4 pt-2 pb-5 sm:flex-row sm:items-end sm:justify-between lg:pt-0 lg:pb-6">
         <div>
-          <h1 className="text-3xl font-bold lg:text-4xl">{titulo}</h1>
-          <p className="mt-1 text-lg text-texto-suave">{descricao}</p>
+          <h1 className="text-3xl font-bold">{titulo}</h1>
+          <p className="mt-1 text-texto-suave">{descricao}</p>
         </div>
         {acao}
       </header>

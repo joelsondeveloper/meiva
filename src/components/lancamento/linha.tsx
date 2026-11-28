@@ -3,6 +3,7 @@ import { categoriaDo, rotuloDoLancamento, sinalDo, type Categoria } from "@/lib/
 import type { LancamentoSalvo } from "@/lib/lancamentos/tipos";
 import { IconeAporte, IconeEntrada, IconeFiado, IconeRetirada, IconeSaida } from "@/components/icones";
 import { Valor } from "@/components/valor";
+import { TextoComNumeros } from "@/components/texto-com-numeros";
 
 type Visual = { cor: string; Icone: typeof IconeEntrada };
 
@@ -51,7 +52,9 @@ export function LinhaLancamento({
         <Icone className="size-6" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className={`font-bold break-words ${riscado ? "text-texto-suave line-through" : ""}`}>{l.descricao}</p>
+        <p className={`font-bold break-words ${riscado ? "text-texto-suave line-through" : ""}`}>
+          <TextoComNumeros>{l.descricao}</TextoComNumeros>
+        </p>
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-texto-suave">
           {riscado ? "Desfeito" : rotuloDoLancamento(l)}
           {categoria === "fiado" && !riscado && <SeloAReceber />}

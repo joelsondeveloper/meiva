@@ -37,17 +37,18 @@ export function PainelCaixa({ resumo, erro, onTentarDeNovo }: Props) {
         <>
           <div>
             <p className="text-texto-suave">Saldo de hoje</p>
-            <p className={`text-4xl font-bold ${resumo.dia.saldo < 0 ? "text-saida" : ""}`}>
+            <p className={`text-3xl font-bold ${resumo.dia.saldo < 0 ? "text-saida" : ""}`}>
               <Valor centavos={resumo.dia.saldo} destaque />
             </p>
             <p className="text-texto-suave">O que entrou menos o que saiu hoje.</p>
           </div>
 
           <dl className="flex flex-col divide-y divide-borda border-y border-borda">
-            <Linha rotulo="Entrou" Icone={IconeEntrada} cor="text-entrada">
+            {/* Zero neutro: a cor de entrada/saída só aparece quando há valor. */}
+            <Linha rotulo="Entrou" Icone={IconeEntrada} cor={resumo.dia.entradas > 0 ? "text-entrada" : "text-texto-suave"}>
               <Valor centavos={resumo.dia.entradas} sinal={resumo.dia.entradas > 0 ? "+" : ""} />
             </Linha>
-            <Linha rotulo="Saiu" Icone={IconeSaida} cor="text-saida">
+            <Linha rotulo="Saiu" Icone={IconeSaida} cor={resumo.dia.saidas > 0 ? "text-saida" : "text-texto-suave"}>
               <Valor centavos={resumo.dia.saidas} sinal={resumo.dia.saidas > 0 ? "−" : ""} />
             </Linha>
             <Linha rotulo="Dinheiro no caixa" Icone={IconeSaldo} cor="text-texto">

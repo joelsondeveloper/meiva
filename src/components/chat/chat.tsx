@@ -5,13 +5,14 @@ import { useSearchParams } from "next/navigation";
 import {
   Suspense,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { IconeEnviar, IconeNovaConversa, IconeSaldo } from "@/components/icones";
+import { IconeNovaConversa, IconeSaldo } from "@/components/icones";
 import { Marca } from "@/components/marca";
 import { Valor } from "@/components/valor";
 import { buscarDia, desfazerLancamento, enviarMensagens, textoDoErro } from "@/lib/chat/api";
@@ -32,7 +33,7 @@ import type { LancamentoSalvo } from "@/lib/lancamentos/tipos";
 import { BoasVindas } from "./boas-vindas";
 import { juntarAoCampo } from "@/lib/chat/audio";
 import { BolhaAnotando, BolhaMensagem } from "./mensagens";
-import { BotaoMicrofone, EstadoGravacao, useGravador } from "./microfone";
+import { AvisoAcimaDoCampo, BotaoDoCampo, StatusNoCampo, acaoDoBotao, useGravador } from "./microfone";
 import { PainelCaixa } from "./painel-caixa";
 
 const MAX_CARACTERES = 500;
@@ -88,11 +89,15 @@ export function Chat() {
 
   function preencher(frase: string) {
     setTexto(frase);
-    const campo = campoRef.current;
-    if (!campo) return;
-    campo.focus();
-    // Cursor no fim, para a pessoa completar a frase (ex.: "Marta pagou ").
-    requestAnimationFrame(() => campo.setSelectionRange(frase.length, frase.length));
+    // No próximo quadro: depois da transcrição o campo volta a aparecer (estava
+    // escondido atrás do "Escrevendo o que você falou…") e só então recebe o foco.
+    requestAnimationFrame(() => {
+      const campo = campoRef.current;
+      if (!campo) return;
+      campo.focus();
+      // Cursor no fim, para a pessoa completar a frase (ex.: "Marta pagou ").
+      campo.setSelectionRange(frase.length, frase.length);
+    });
   }
 
   // Áudio: a transcrição só entra no campo (junto do que já estava escrito)
@@ -101,6 +106,19 @@ export function Chat() {
     onTexto: (falado) => preencher(juntarAoCampo(campoRef.current?.value ?? "", falado, MAX_CARACTERES)),
   });
   const gravandoOuTranscrevendo = gravacao.fase !== "parado";
+  const statusNoCampo = gravacao.fase === "gravando" || gravacao.fase === "transcrevendo";
+  const acao = acaoDoBotao(gravacao.fase, texto);
+  const ocupado =
+    gravacao.fase === "pedindo" || gravacao.fase === "transcrevendo" || (acao === "enviar" && anotando);
+
+  // Cresce com o texto, de 1 até 4 linhas (o teto está no CSS); depois rola por dentro.
+  // Feito à mão porque o field-sizing ainda não existe no Safari e no Firefox.
+  useLayoutEffect(() => {
+    const campo = campoRef.current;
+    if (!campo || statusNoCampo) return;
+    campo.style.height = "auto";
+    campo.style.height = `${campo.scrollHeight + campo.offsetHeight - campo.clientHeight}px`;
+  }, [texto, statusNoCampo]);
 
   async function enviar(e?: FormEvent<HTMLFormElement>) {
     e?.preventDefault();
@@ -161,8 +179,11 @@ export function Chat() {
   }
 
   function aoTeclar(e: KeyboardEvent<HTMLTextAreaElement>) {
-    // Enter envia; Shift+Enter quebra a linha. Não envia no meio de uma composição (IME).
-    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+    // Computador: Enter envia; Shift+Enter quebra a linha. Celular (toque): Enter
+    // sempre quebra a linha e o envio é só pelo botão, para ninguém mandar uma
+    // frase pela metade. Não envia no meio de uma composição (IME).
+    const toque = window.matchMedia("(pointer: coarse)").matches;
+    if (e.key === "Enter" && !e.shiftKey && !toque && !e.nativeEvent.isComposing) {
       e.preventDefault();
       void enviar();
     }
@@ -179,17 +200,18 @@ export function Chat() {
       </Suspense>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="border-b border-borda bg-superficie px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 sm:px-6 lg:px-8 lg:pt-8 lg:pb-5">
+        <header className="border-b border-borda bg-superficie px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 sm:px-6 lg:px-8 lg:pt-6 lg:pb-4">
           {/* Celular: um andar só (marca + saldo de hoje). O título fica para o leitor de tela. */}
           <div className="flex min-h-12 items-center justify-between gap-3 lg:hidden">
             <Marca />
             <Link
               href="/resumo"
-              className="flex min-h-12 items-center gap-2 rounded-full border border-borda-forte px-4 transition-colors duration-150 hover:bg-fundo"
+              className="flex min-h-12 min-w-0 items-center gap-2 rounded-full border border-borda-forte px-3 transition-colors duration-150 hover:bg-fundo min-[360px]:px-4"
             >
-              <IconeSaldo className="size-5 text-primaria" />
-              <span>
-                Hoje{" "}
+              <IconeSaldo className="size-5 text-primaria max-[359px]:hidden" />
+              {/* Valor muito grande em 320px: "Saldo hoje" quebra a linha, o valor nunca. */}
+              <span className="text-right">
+                Saldo hoje{" "}
                 {resumo ? (
                   <Valor centavos={resumo.dia.saldo} className={`font-bold ${resumo.dia.saldo < 0 ? "text-saida" : ""}`} />
                 ) : (
@@ -245,41 +267,42 @@ export function Chat() {
         <form
           onSubmit={enviar}
           aria-label="Escrever mensagem"
-          className="border-t border-borda bg-superficie px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-6"
+          className="border-t border-borda bg-superficie px-3 pt-3 pb-[var(--folga-campo)] sm:px-6 lg:px-8 lg:pb-6"
         >
           <label htmlFor="mensagem" className="sr-only">
             O que aconteceu no caixa?
           </label>
-          <EstadoGravacao fase={gravacao.fase} segundos={gravacao.segundos} erro={gravacao.erro} />
+          <AvisoAcimaDoCampo fase={gravacao.fase} erro={gravacao.erro} />
           <div className="flex items-end gap-2">
-            <textarea
-              id="mensagem"
-              ref={campoRef}
-              value={texto}
-              onChange={(e) => {
-                setTexto(e.target.value);
-                if (gravacao.erro) gravacao.limparErro();
-              }}
-              onKeyDown={aoTeclar}
-              maxLength={MAX_CARACTERES}
-              rows={1}
-              enterKeyHint="send"
-              autoComplete="off"
-              placeholder="Escreva aqui…"
-              className="max-h-40 min-h-14 min-w-0 flex-1 resize-none rounded-controle border border-borda-forte bg-fundo px-4 py-3 text-lg text-texto [field-sizing:content] placeholder:text-texto-suave"
-            />
-            <BotaoMicrofone fase={gravacao.fase} onClick={gravacao.alternar} />
-            <button
-              type="submit"
-              disabled={anotando || gravandoOuTranscrevendo || !texto.trim()}
-              className="flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-controle bg-acento px-4 sm:px-5 text-lg font-bold text-sobre-acento transition-[background-color,scale] duration-150 hover:bg-acento-forte active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <IconeEnviar className="size-5" />
-              {/* Em telas de 320px o rótulo vira só para o leitor de tela, para o campo caber numa linha. */}
-              <span className="max-[359px]:sr-only">Enviar</span>
-            </button>
+            <div className="min-w-0 flex-1">
+              {statusNoCampo && (
+                // Mesmo formato do campo: a gravação acontece "dentro" dele.
+                <div className="flex min-h-12 items-center rounded-[1.5rem] border border-borda-forte bg-fundo px-4 py-2 animate-aparecer">
+                  <StatusNoCampo fase={gravacao.fase} segundos={gravacao.segundos} />
+                </div>
+              )}
+              {/* Fica montado enquanto grava (escondido): o texto já escrito não se perde. */}
+              <textarea
+                id="mensagem"
+                ref={campoRef}
+                hidden={statusNoCampo}
+                value={texto}
+                onChange={(e) => {
+                  setTexto(e.target.value);
+                  if (gravacao.erro) gravacao.limparErro();
+                }}
+                onKeyDown={aoTeclar}
+                maxLength={MAX_CARACTERES}
+                rows={1}
+                enterKeyHint="enter"
+                autoComplete="off"
+                placeholder="Escreva aqui…"
+                className="block max-h-[calc(3lh+3rem)] min-h-12 w-full resize-none overflow-y-auto rounded-[1.5rem] border border-borda-forte bg-fundo px-4 py-[calc((3rem-1lh-2px)/2)] text-base leading-normal text-texto placeholder:text-texto-suave"
+              />
+            </div>
+            <BotaoDoCampo acao={acao} ocupado={ocupado} onGravarOuParar={gravacao.alternar} />
           </div>
-          {texto.length >= MOSTRAR_CONTADOR_A_PARTIR_DE && (
+          {texto.length >= MOSTRAR_CONTADOR_A_PARTIR_DE && !statusNoCampo && (
             <p className="mt-1 text-right text-texto-suave" aria-live="polite">
               {texto.length} de {MAX_CARACTERES} letras
             </p>
